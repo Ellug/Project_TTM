@@ -53,7 +53,7 @@ export class MilestoneService {
     projectId: string,
     data: Pick<Milestone, "title" | "description" | "status" | "dueDate">
   ) {
-    await addDoc(collection(db, "projects", projectId, "milestones"), {
+    return addDoc(collection(db, "projects", projectId, "milestones"), {
       title: data.title,
       description: data.description,
       status: data.status,

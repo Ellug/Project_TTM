@@ -3,6 +3,7 @@
 import { AuthGate } from "@/components/organisms/AuthGate";
 import { ProjectCard } from "@/components/organisms/projects/ProjectCard";
 import { ProjectCreateForm } from "@/components/organisms/projects/ProjectCreateForm";
+import { ProjectImportPanel } from "@/components/organisms/projects/ProjectImportPanel";
 import { Panel } from "@/components/atoms/Panel";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useProjects } from "@/lib/hooks/useProjects";
@@ -25,6 +26,7 @@ export default function ProjectsPage() {
     <AuthGate>
       <div className="grid gap-8">
         <ProjectCreateForm onCreate={handleCreate} disabled={!user} />
+        <ProjectImportPanel projects={projects} />
 
         <section className="grid gap-4 md:grid-cols-2">
           {projects.length === 0 ? (

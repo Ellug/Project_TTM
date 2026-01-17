@@ -47,6 +47,7 @@ export type Task = {
   completed: boolean;
   assigneeIds: string[];
   labels: string[];
+  order?: number;
   dueDate?: string;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;

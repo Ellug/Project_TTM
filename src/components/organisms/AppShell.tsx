@@ -42,17 +42,19 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
               </Link>
               {user ? (
                 <div className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5">
-                  <Avatar
-                    name={profile?.nickname || profile?.displayName || "User"}
-                    src={profile?.photoURL}
-                    size="sm"
-                  />
-                  <div className="hidden text-left sm:block">
-                    <p className="text-xs text-[var(--muted)]">Signed in</p>
-                    <p className="text-sm font-medium text-[var(--text)]">
-                      {profile?.nickname || profile?.displayName || "User"}
-                    </p>
-                  </div>
+                  <Link href="/profile" className="flex items-center gap-2 cursor-pointer">
+                    <Avatar
+                      name={profile?.nickname || profile?.displayName || "User"}
+                      src={profile?.photoURL}
+                      size="sm"
+                    />
+                    <div className="hidden text-left sm:block">
+                      <p className="text-xs text-[var(--muted)]">Signed in</p>
+                      <p className="text-sm font-medium text-[var(--text)]">
+                        {profile?.nickname || profile?.displayName || "User"}
+                      </p>
+                    </div>
+                  </Link>
                   <button
                     className="ml-2 rounded-full border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--muted)] transition hover:text-[var(--text)]"
                     onClick={async () => {

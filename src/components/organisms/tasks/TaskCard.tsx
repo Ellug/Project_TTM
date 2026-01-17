@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, type DragEvent } from "react";
 import clsx from "clsx";
 import type { Task, UserProfile } from "@/lib/types";
 import { Avatar } from "@/components/atoms/Avatar";
@@ -15,6 +15,10 @@ type TaskCardProps = {
   onSelect: (taskId: string) => void;
   onDragEnd: () => void;
   onUpdate: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  onDragOverCard?: (event: DragEvent<HTMLDivElement>) => void;
+  onDragLeaveCard?: (event: DragEvent<HTMLDivElement>) => void;
+  onDropOnCard?: (event: DragEvent<HTMLDivElement>) => void;
+  dragPosition?: "before" | "after" | null;
 };
 
 export const TaskCard = ({
@@ -25,12 +29,22 @@ export const TaskCard = ({
   onSelect,
   onDragEnd,
   onUpdate,
+  onDragOverCard,
+  onDragLeaveCard,
+  onDropOnCard,
+  dragPosition,
 }: TaskCardProps) => {
   const assignedMembers = useMemo(
     () => members.filter((member) => task.assigneeIds.includes(member.uid)),
     [members, task.assigneeIds]
   );
   const draggingRef = useRef(false);
+
+  const isTaskDrag = (event: DragEvent<HTMLDivElement>) =>
+    Boolean(
+      event.dataTransfer?.types?.includes("application/x-ttm-task") ||
+        event.dataTransfer?.types?.includes("text/plain")
+    );
 
   const visibleMembers = assignedMembers.slice(0, 3);
   const extraMembers = Math.max(assignedMembers.length - visibleMembers.length, 0);
@@ -39,7 +53,12 @@ export const TaskCard = ({
 
   return (
     <div
-      className={clsx("task-card", isSelected && "task-card-selected")}
+      className={clsx(
+        "task-card",
+        isSelected && "task-card-selected",
+        dragPosition === "before" && "task-card-drop-before",
+        dragPosition === "after" && "task-card-drop-after"
+      )}
       role="button"
       tabIndex={0}
       draggable={canEdit}
@@ -65,6 +84,23 @@ export const TaskCard = ({
       onDragEnd={() => {
         draggingRef.current = false;
         onDragEnd();
+      }}
+      onDragOver={(event) => {
+        if (!canEdit || !isTaskDrag(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onDragOverCard?.(event);
+      }}
+      onDragLeave={(event) => {
+        if (!canEdit) return;
+        event.stopPropagation();
+        onDragLeaveCard?.(event);
+      }}
+      onDrop={(event) => {
+        if (!canEdit || !isTaskDrag(event)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        onDropOnCard?.(event);
       }}
       onClick={() => {
         if (draggingRef.current) return;
@@ -97,8 +133,7 @@ export const TaskCard = ({
           <div className="grid gap-2">
             <p
               className={clsx(
-                "text-sm font-semibold text-[var(--text)]",
-                task.completed && "line-through text-[var(--muted)]"
+                "text-sm font-semibold text-[var(--text)]"
               )}
             >
               {task.title}

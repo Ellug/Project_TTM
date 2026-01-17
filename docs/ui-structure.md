@@ -25,7 +25,7 @@ layers and extracted Firestore operations into service classes.
 
 ### Organisms
 - Layout/auth: AppShell, AuthGate, AuthPanel
-- Projects: ProjectCreateForm, ProjectCard, ProjectHeader, ProjectMembersPanel
+- Projects: ProjectCreateForm, ProjectImportPanel, ProjectCard, ProjectHeader, ProjectMembersPanel
 - Milestones: MilestoneCreateForm, MilestoneCard, MilestoneHeader
 - Tasks: TaskCreateForm, TaskFilters, TaskBoard, TaskCard, TaskDetailsPanel
 
@@ -41,6 +41,10 @@ layers and extracted Firestore operations into service classes.
   - Subscribe to tasks, create/update/delete, delete tasks for milestone.
 - src/lib/services/UserService.ts
   - Fetch profiles, find user by email.
+
+## Importers
+- src/lib/importers/piratesCsv.ts
+  - CSV parser for Pirates Design prototype files and task mapping.
 
 ## Hooks
 - useProjects

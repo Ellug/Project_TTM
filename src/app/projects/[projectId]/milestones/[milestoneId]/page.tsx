@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import clsx from "clsx";
 import { AuthGate } from "@/components/organisms/AuthGate";
@@ -38,6 +38,7 @@ export default function MilestoneTasksPage() {
 
   const currentRole = resolveMemberRole(project, user?.uid);
   const canEditTasks = canEditProjectContent(currentRole);
+  const orderSeedRef = useRef<Set<string>>(new Set());
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -88,6 +89,32 @@ export default function MilestoneTasksPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedTaskId]);
+
+  useEffect(() => {
+    if (!projectId || !milestoneId || !canEditTasks) return;
+    const missingOrderTasks = tasks.filter(
+      (task) =>
+        (task.order === undefined ||
+          task.order === null ||
+          Number.isNaN(task.order)) &&
+        !orderSeedRef.current.has(task.id)
+    );
+    if (!missingOrderTasks.length) return;
+    missingOrderTasks.forEach((task, index) => {
+      orderSeedRef.current.add(task.id);
+      const fallbackOrder =
+        task.updatedAt?.toMillis?.() ??
+        task.createdAt?.toMillis?.() ??
+        Date.now() + index;
+      TaskService.updateTask(projectId, milestoneId, task.id, {
+        order: fallbackOrder,
+      })
+        .catch(() => {})
+        .finally(() => {
+          orderSeedRef.current.delete(task.id);
+        });
+    });
+  }, [projectId, milestoneId, canEditTasks, tasks]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {

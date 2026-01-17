@@ -262,6 +262,14 @@ a {
   outline-offset: 3px;
 }
 
+.task-card-drop-before {
+  box-shadow: inset 0 3px 0 rgba(110, 231, 255, 0.7);
+}
+
+.task-card-drop-after {
+  box-shadow: inset 0 -3px 0 rgba(110, 231, 255, 0.7);
+}
+
 .task-column {
   transition: background 0.2s ease, box-shadow 0.2s ease;
 }

@@ -29,7 +29,7 @@ export class TaskService {
       milestoneId,
       "tasks"
     );
-    const tasksQuery = query(tasksRef, orderBy("createdAt", "desc"));
+    const tasksQuery = query(tasksRef, orderBy("order", "desc"));
     return onSnapshot(tasksQuery, (snapshot) => {
       const items = snapshot.docs.map((docSnapshot) => ({
         id: docSnapshot.id,
@@ -45,7 +45,10 @@ export class TaskService {
     data: Pick<
       Task,
       "title" | "description" | "priority" | "dueDate" | "creatorId"
-    >
+    > &
+      Partial<
+        Pick<Task, "status" | "completed" | "assigneeIds" | "labels" | "order">
+      >
   ) {
     return addDoc(
       collection(
@@ -59,11 +62,13 @@ export class TaskService {
       {
         title: data.title,
         description: data.description,
-        status: "Backlog",
+        status: data.status ?? "Backlog",
         priority: data.priority,
-        completed: false,
-        assigneeIds: [],
-        labels: [],
+        completed:
+          data.completed ?? (data.status === "Done" ? true : false),
+        assigneeIds: data.assigneeIds ?? [],
+        labels: data.labels ?? [],
+        order: data.order ?? Date.now() + Math.random(),
         dueDate: data.dueDate || "",
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),

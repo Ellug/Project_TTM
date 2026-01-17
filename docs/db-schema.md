@@ -1,49 +1,72 @@
-# Firestore Data Model
+# Database Schema
+
+This document outlines the schema for the Firestore database.
 
 ## Collections
 
-### users/{uid}
-- uid: string
-- email: string
-- displayName: string
-- nickname: string
-- photoURL: string
-- createdAt: timestamp
-- updatedAt: timestamp
+### `users`
 
-### projects/{projectId}
-- name: string
-- description: string
-- ownerId: string
-- memberIds: string[]
-- memberRoles: map (uid -> "owner" | "admin" | "editor" | "viewer")
-- createdAt: timestamp
-- updatedAt: timestamp
+Stores user profile information.
 
-### projects/{projectId}/milestones/{milestoneId}
-- title: string
-- description: string
-- status: "Planned" | "Active" | "Complete"
-- dueDate: string (YYYY-MM-DD)
-- createdAt: timestamp
-- updatedAt: timestamp
+| Field         | Type      | Description                                  |
+|---------------|-----------|----------------------------------------------|
+| `uid`         | `string`  | The user's unique ID from Firebase Auth.     |
+| `email`       | `string`  | The user's email address.                    |
+| `displayName` | `string`  | The user's display name.                     |
+| `nickname`    | `string`  | The user's nickname.                         |
+| `photoURL`    | `string`  | URL for the user's profile picture.          |
+| `createdAt`   | `Timestamp` | The timestamp when the user was created.     |
+| `updatedAt`   | `Timestamp` | The timestamp when the user was last updated.|
 
-### projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}
-- title: string
-- description: string (markdown)
-- status: "Backlog" | "In Progress" | "Review" | "Done"
-- priority: "Low" | "Medium" | "High"
-- completed: boolean
-- assigneeIds: string[]
-- labels: string[]
-- dueDate: string (YYYY-MM-DD)
-- creatorId: string
-- createdAt: timestamp
-- updatedAt: timestamp
+### `projects`
 
-## Access control
-- Only authenticated users can read profiles (`users`).
-- Projects are readable only by members (memberIds includes uid).
-- Project ownership (ownerId) controls project metadata, membership edits, and role assignments.
-- Member roles default to editor when no role entry exists for a user.
-- Milestones and tasks are readable by project members and writable by roles: owner, admin, editor.
+Stores project information.
+
+| Field         | Type                 | Description                                    |
+|---------------|----------------------|------------------------------------------------|
+| `id`          | `string`             | The project's unique ID.                       |
+| `name`        | `string`             | The name of the project.                       |
+| `description` | `string` (optional)  | A description of the project.                  |
+| `ownerId`     | `string`             | The UID of the user who owns the project.      |
+| `memberIds`   | `array` of `string`  | An array of UIDs of users who are members.     |
+| `memberRoles` | `map`                | A map of user UIDs to their roles in the project. |
+| `createdAt`   | `Timestamp` (optional) | The timestamp when the project was created.    |
+| `updatedAt`   | `Timestamp` (optional) | The timestamp when the project was last updated.|
+
+#### Subcollections
+
+##### `milestones`
+
+Stores milestone information for a project.
+
+| Field         | Type                | Description                                       |
+|---------------|---------------------|---------------------------------------------------|
+| `id`          | `string`            | The milestone's unique ID.                        |
+| `title`       | `string`            | The title of the milestone.                       |
+| `description` | `string` (optional) | A description of the milestone.                   |
+| `status`      | `string`            | The status of the milestone (`Planned`, `Active`, `Complete`). |
+| `dueDate`     | `string` (optional) | The due date of the milestone.                    |
+| `createdAt`   | `Timestamp` (optional) | The timestamp when the milestone was created.     |
+| `updatedAt`   | `Timestamp` (optional) | The timestamp when the milestone was last updated.|
+
+###### Subcollections
+
+####### `tasks`
+
+Stores task information for a milestone.
+
+| Field         | Type                  | Description                                                |
+|---------------|-----------------------|------------------------------------------------------------|
+| `id`          | `string`              | The task's unique ID.                                      |
+| `title`       | `string`              | The title of the task.                                     |
+| `description` | `string`              | A description of the task.                                 |
+| `status`      | `string`              | The status of the task (`Backlog`, `In Progress`, `Review`, `Done`). |
+| `priority`    | `string`              | The priority of the task (`Low`, `Medium`, `High`).        |
+| `completed`   | `boolean`             | Whether the task is completed.                             |
+| `assigneeIds` | `array` of `string`   | An array of UIDs of users assigned to the task.            |
+| `labels`      | `array` of `string`   | An array of labels for the task.                           |
+| `order`       | `number` (optional)   | Manual ordering within a status column.                    |
+| `dueDate`     | `string` (optional)   | The due date of the task.                                  |
+| `createdAt`   | `Timestamp` (optional) | The timestamp when the task was created.                   |
+| `updatedAt`   | `Timestamp` (optional) | The timestamp when the task was last updated.              |
+| `creatorId`   | `string`              | The UID of the user who created the task.                  |
