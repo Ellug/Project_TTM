@@ -1,0 +1,114 @@
+"use client";
+
+import { useMemo } from "react";
+import clsx from "clsx";
+import type { Task, UserProfile } from "@/lib/types";
+import { Avatar } from "@/components/Avatar";
+import { toDateString } from "@/lib/utils";
+
+type TaskCardProps = {
+  task: Task;
+  members: UserProfile[];
+  isSelected: boolean;
+  onSelect: (taskId: string) => void;
+  onUpdate: (taskId: string, updates: Partial<Task>) => Promise<void>;
+};
+
+export const TaskCard = ({
+  task,
+  members,
+  isSelected,
+  onSelect,
+  onUpdate,
+}: TaskCardProps) => {
+  const assignedMembers = useMemo(
+    () => members.filter((member) => task.assigneeIds.includes(member.uid)),
+    [members, task.assigneeIds]
+  );
+
+  const visibleMembers = assignedMembers.slice(0, 3);
+  const extraMembers = Math.max(assignedMembers.length - visibleMembers.length, 0);
+  const visibleLabels = task.labels.slice(0, 2);
+  const extraLabels = Math.max(task.labels.length - visibleLabels.length, 0);
+
+  return (
+    <div
+      className={clsx("task-card", isSelected && "task-card-selected")}
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect(task.id)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect(task.id);
+        }
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={task.completed}
+            className="mt-1 h-4 w-4 accent-[var(--accent)]"
+            onClick={(event) => event.stopPropagation()}
+            onChange={async (event) => {
+              await onUpdate(task.id, {
+                completed: event.target.checked,
+                status: event.target.checked ? "Done" : "Backlog",
+              });
+            }}
+          />
+          <div className="grid gap-2">
+            <p
+              className={clsx(
+                "text-sm font-semibold text-[var(--text)]",
+                task.completed && "line-through text-[var(--muted)]"
+              )}
+            >
+              {task.title}
+            </p>
+            <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[var(--muted)]">
+              <span className="chip">{task.status}</span>
+              <span className="chip">{task.priority}</span>
+              {task.dueDate && <span>Due {toDateString(task.dueDate)}</span>}
+            </div>
+          </div>
+        </div>
+        {task.assigneeIds.length > 0 && (
+          <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+            {task.assigneeIds.length} assigned
+          </span>
+        )}
+      </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted)]">
+        <div className="flex items-center gap-2">
+          {visibleMembers.length === 0 ? (
+            <span>Unassigned</span>
+          ) : (
+            <>
+              {visibleMembers.map((member) => (
+                <Avatar
+                  key={member.uid}
+                  name={member.nickname || member.displayName || "User"}
+                  src={member.photoURL}
+                  size="sm"
+                />
+              ))}
+              {extraMembers > 0 && <span className="chip">+{extraMembers}</span>}
+            </>
+          )}
+        </div>
+        {task.labels.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {visibleLabels.map((label) => (
+              <span key={label} className="chip">
+                {label}
+              </span>
+            ))}
+            {extraLabels > 0 && <span className="chip">+{extraLabels}</span>}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
