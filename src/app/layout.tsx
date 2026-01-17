@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
-import { AppShell } from "@/components/AppShell";
+import { AppShell } from "@/components/organisms/AppShell";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
@@ -21,7 +21,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ForgeFlow",
+  title: "TTM - Team Task Manager",
   description: "Task cockpit for game development teams.",
 };
 

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/components/AuthProvider";
-import { Avatar } from "@/components/Avatar";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { Avatar } from "@/components/atoms/Avatar";
 
 export const AppShell = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -26,11 +26,11 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
                 href="/projects"
                 className="text-lg font-semibold tracking-tight text-[var(--text)]"
               >
-                ForgeFlow
+                TTM
               </Link>
               <div className="hidden items-center gap-2 text-sm text-[var(--muted)] sm:flex">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-                Game Dev Task Hub
+                Team Task Manage
               </div>
             </div>
             <div className="flex items-center gap-3 text-sm">

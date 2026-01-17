@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/AuthProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { Panel } from "@/components/atoms/Panel";
 
 export const AuthGate = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, isConfigured } = useAuth();
@@ -16,27 +17,27 @@ export const AuthGate = ({ children }: { children: React.ReactNode }) => {
 
   if (!isConfigured) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
+      <Panel className="p-6 text-sm text-[var(--muted)]">
         Firebase is not configured. Add your credentials to
         <span className="ml-1 font-mono text-[var(--text)]">.env.local</span>{" "}
         to continue.
-      </div>
+      </Panel>
     );
   }
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
+      <Panel className="p-6 text-sm text-[var(--muted)]">
         Loading workspace...
-      </div>
+      </Panel>
     );
   }
 
   if (!user) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 text-sm text-[var(--muted)]">
+      <Panel className="p-6 text-sm text-[var(--muted)]">
         Redirecting to title screen...
-      </div>
+      </Panel>
     );
   }
 

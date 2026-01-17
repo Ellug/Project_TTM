@@ -1,4 +1,9 @@
-import type { MilestoneStatus, TaskPriority, TaskStatus } from "./types";
+import type {
+  MemberRole,
+  MilestoneStatus,
+  TaskPriority,
+  TaskStatus,
+} from "./types";
 
 export const taskStatuses: TaskStatus[] = [
   "Backlog",
@@ -13,4 +18,11 @@ export const milestoneStatuses: MilestoneStatus[] = [
   "Planned",
   "Active",
   "Complete",
+];
+
+export const memberRoles: MemberRole[] = [
+  "owner",
+  "admin",
+  "editor",
+  "viewer",
 ];

@@ -5,7 +5,7 @@ import {
   signOut,
   type User as FirebaseUser,
 } from "firebase/auth";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { auth, db, isFirebaseConfigured } from "@/lib/firebase";
 import type { UserProfile } from "@/lib/types";
@@ -49,14 +49,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const profileRef = doc(db, "users", currentUser.uid);
       profileUnsub = onSnapshot(profileRef, (snapshot) => {
         if (snapshot.exists()) {
+          const firestoreProfile = snapshot.data();
+          const authPhotoURL = currentUser.photoURL;
+          const firestorePhotoURL = firestoreProfile.photoURL;
+
+          // Sync photo URL from auth provider to Firestore profile
+          if (authPhotoURL && authPhotoURL !== firestorePhotoURL) {
+            updateDoc(profileRef, { photoURL: authPhotoURL }).catch(() => {
+              // Not critical, so we can ignore update errors
+            });
+          }
+
           setProfile({
             uid: currentUser.uid,
             email: currentUser.email || "",
             displayName: currentUser.displayName || "",
-            nickname: snapshot.data().nickname || currentUser.displayName || "",
-            photoURL: snapshot.data().photoURL || currentUser.photoURL || "",
-            createdAt: snapshot.data().createdAt,
-            updatedAt: snapshot.data().updatedAt,
+            nickname: firestoreProfile.nickname || currentUser.displayName || "",
+            photoURL: authPhotoURL || firestorePhotoURL || "",
+            createdAt: firestoreProfile.createdAt,
+            updatedAt: firestoreProfile.updatedAt,
           });
         } else {
           setProfile(null);

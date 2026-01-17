@@ -16,6 +16,7 @@
 - description: string
 - ownerId: string
 - memberIds: string[]
+- memberRoles: map (uid -> "owner" | "admin" | "editor" | "viewer")
 - createdAt: timestamp
 - updatedAt: timestamp
 
@@ -43,7 +44,6 @@
 ## Access control
 - Only authenticated users can read profiles (`users`).
 - Projects are readable only by members (memberIds includes uid).
-- Project ownership (ownerId) controls project metadata and membership edits.
-- Milestones and tasks are readable and writable by project members.
-
-See `firestore.rules` for the exact rules.
+- Project ownership (ownerId) controls project metadata, membership edits, and role assignments.
+- Member roles default to editor when no role entry exists for a user.
+- Milestones and tasks are readable by project members and writable by roles: owner, admin, editor.

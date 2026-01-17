@@ -10,12 +10,15 @@ export type UserProfile = {
   updatedAt?: Timestamp;
 };
 
+export type MemberRole = "owner" | "admin" | "editor" | "viewer";
+
 export type Project = {
   id: string;
   name: string;
   description?: string;
   ownerId: string;
   memberIds: string[];
+  memberRoles?: Record<string, MemberRole>;
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 };
