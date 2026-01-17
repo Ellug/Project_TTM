@@ -82,7 +82,6 @@ export default function ProfileEditForm() {
         <FormField
           label="Nickname"
           labelClassName="text-xs uppercase tracking-[0.2em] text-[var(--muted)]"
-          error={errors.nickname}
         >
           <InputField
             {...register("nickname", { required: "Nickname is required." })}
