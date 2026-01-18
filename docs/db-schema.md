@@ -1,6 +1,6 @@
 # Database Schema
 
-This document outlines the Firestore collections used by the app.
+This document outlines the Firestore collections and Firebase Storage structure used by the app.
 
 ## Collections
 
@@ -89,3 +89,19 @@ Stores task information for a milestone.
 | `createdAt`   | `Timestamp` (optional) | The timestamp when the task was created.                   |
 | `updatedAt`   | `Timestamp` (optional) | The timestamp when the task was last updated.              |
 | `creatorId`   | `string`               | The UID of the user who created the task.                  |
+
+## Firebase Storage
+
+### `profile-photos/{uid}/avatar.{ext}`
+
+Stores user profile photos uploaded from the profile page.
+
+| Path Component | Description                                                  |
+|----------------|--------------------------------------------------------------|
+| `{uid}`        | The user's unique ID from Firebase Auth.                     |
+| `{ext}`        | File extension (jpg, png, gif, webp).                        |
+
+**Constraints:**
+- Maximum file size: 5MB
+- Allowed types: `image/jpeg`, `image/png`, `image/gif`, `image/webp`
+- Files are overwritten on re-upload (no versioning)

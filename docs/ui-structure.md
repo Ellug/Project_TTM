@@ -8,6 +8,9 @@ connections to reduce future discovery work.
 - `src/app/page.tsx`
   - Entry page with AuthPanel and a feature overview.
   - Uses `Card`, `Panel` atoms for the landing layout and ThemeToggle.
+- `src/app/profile/page.tsx`
+  - User profile page with photo upload and nickname editing.
+  - Uses `Avatar`, `ProfileEditForm`, and `AppShell`.
 - `src/app/projects/page.tsx`
   - Project list, project creation, and CSV import.
   - Uses `ProjectCreateForm`, `ProjectImportPanel`, and `ProjectCard`.
@@ -54,6 +57,8 @@ connections to reduce future discovery work.
   inline edits for priority/status/assignee.
 - TaskCard: Task summary, drag handle, and quick completion toggle.
 - TaskDetailsPanel: Markdown details, assignees, and task metadata editing.
+- ProfileEditForm: Profile photo upload (with progress), nickname editing,
+  and email display (uses `UserService.uploadProfilePhoto`).
 
 ### Providers
 - AuthProvider (auth state + user profile)
@@ -69,6 +74,7 @@ connections to reduce future discovery work.
   - Subscribe tasks, create/update/delete, delete tasks for milestone.
 - `UserService`
   - Fetch profiles, invite lookup, and realtime user directory subscription.
+  - Profile photo upload/delete via Firebase Storage.
 - `CsvFormatService`
   - Subscribe/create/delete user CSV formats.
 
@@ -93,3 +99,5 @@ connections to reduce future discovery work.
   + `TaskService`.
 - Task Board/Table share the same `onUpdate` handler so ordering edits remain
   consistent across views.
+- Profile photo upload: `ProfileEditForm` → `UserService.uploadProfilePhoto`
+  → Firebase Storage → update `photoURL` in Auth + Firestore.

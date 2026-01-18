@@ -9,7 +9,7 @@
 
 **TTM** is a real-time task management application for game development teams with hierarchical structure (Projects → Milestones → Tasks), collaborative features, and CSV import capabilities.
 
-**Tech Stack:** Next.js 16 (App Router), React 19, TypeScript 5, Firebase 12 (Auth + Firestore), Tailwind CSS 4
+**Tech Stack:** Next.js 16 (App Router), React 19, TypeScript 5, Firebase 12 (Auth + Firestore + Storage), Tailwind CSS 4
 
 ---
 
@@ -23,13 +23,13 @@
 - **Global Styles:** `src/app/globals.css`
 - **Path Alias:** `@/*` → `src/*`
 
-### Services (Firestore CRUD)
+### Services (Firestore CRUD + Storage)
 ```
 src/lib/services/
 ├── ProjectService.ts      # Projects, members, invites
 ├── MilestoneService.ts    # Milestones
 ├── TaskService.ts         # Tasks
-├── UserService.ts         # User profiles, email lookup
+├── UserService.ts         # User profiles, email lookup, photo upload
 └── CsvFormatService.ts    # CSV format templates
 ```
 
@@ -48,6 +48,7 @@ src/lib/hooks/
 ```
 src/app/
 ├── page.tsx                                    # Landing (/)
+├── profile/page.tsx                            # User profile + photo upload
 ├── projects/page.tsx                           # Projects list
 ├── projects/[projectId]/milestones/page.tsx    # Milestones + calendar
 └── projects/[projectId]/milestones/[milestoneId]/page.tsx  # Tasks (board/table)
@@ -135,12 +136,18 @@ findByEmail(email)      // Search by email (returns UserProfile | null)
 subscribeAllUsers(callback)  // Real-time (cached globally)
 fetchAllUsers()              // One-time fetch
 
+// Profile photo management (Firebase Storage)
+uploadProfilePhoto(uid, file, onProgress?)  // Upload with progress tracking
+deleteProfilePhoto(uid)                      // Clear photoURL
+
 updateProfile(uid, {nickname, photoURL})
 deleteUser(firebaseUser)  // Requires recent auth
 ```
 
 **Firestore Path:** `users/{uid}`
+**Storage Path:** `profile-photos/{uid}/avatar.{ext}`
 **Caching:** Global cache with subscriber pattern for all users
+**Photo Constraints:** Max 5MB, JPEG/PNG/GIF/WEBP only
 
 ---
 
@@ -184,7 +191,7 @@ deleteFormat(userId, formatId)
 - **[AppShell.tsx](src/components/organisms/AppShell.tsx)** - Main layout wrapper with header
 - **[AuthPanel.tsx](src/components/organisms/AuthPanel.tsx)** - Login/signup form
 - **[AuthGate.tsx](src/components/organisms/AuthGate.tsx)** - Route protection wrapper
-- **[ProfileEditForm.tsx](src/components/organisms/ProfileEditForm.tsx)** - Profile editor
+- **[ProfileEditForm.tsx](src/components/organisms/ProfileEditForm.tsx)** - Profile editor with photo upload (progress bar, remove option)
 
 ---
 
@@ -229,9 +236,9 @@ deleteFormat(userId, formatId)
 
 ---
 
-## 📊 Database Schema (Firestore)
+## 📊 Database Schema (Firestore + Storage)
 
-### Collections Structure
+### Firestore Collections
 
 ```
 users/{uid}
@@ -281,6 +288,13 @@ projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}  📎 Subcollection
   ├── creatorId: string
   ├── createdAt: Timestamp
   └── updatedAt: Timestamp
+```
+
+### Firebase Storage Structure
+
+```
+profile-photos/{uid}/avatar.{ext}
+  └── User profile photos (max 5MB, JPEG/PNG/GIF/WEBP)
 ```
 
 ---
@@ -421,6 +435,17 @@ export default function ProjectsPage() {
 - Update via `TaskService.updateTask()`
 - Real-time subscription updates UI
 
+### Profile Photo Upload Flow
+```typescript
+// 1. User selects file in ProfileEditForm
+// 2. Validate file (type + size)
+// 3. Upload to Firebase Storage with progress tracking
+const photoURL = await UserService.uploadProfilePhoto(uid, file, onProgress)
+// 4. Update profile with new photoURL
+await UserService.updateProfile(uid, { nickname, photoURL })
+// 5. Avatar updates immediately via real-time subscription
+```
+
 ---
 
 ## ⚠️ Known Limitations & Risks
@@ -496,6 +521,14 @@ export default function ProjectsPage() {
 2. `ThemeProvider` wraps app root?
 3. Browser incognito mode blocking storage?
 
+### Profile Photo Upload Fails
+**Issue:** Photo not uploading
+**Check:**
+1. File size under 5MB?
+2. File type is JPEG/PNG/GIF/WEBP?
+3. Firebase Storage rules configured?
+4. `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` set in `.env.local`?
+
 ---
 
 ## 📚 File Count Summary
@@ -503,9 +536,10 @@ export default function ProjectsPage() {
 - **Total Files:** 58 TypeScript/TSX
 - **Services:** 5
 - **Hooks:** 6
-- **Pages:** 4
+- **Pages:** 5 (including profile)
 - **Components:** 49 (14 atoms, 2 molecules, 31 organisms, 2 providers)
 - **Collections:** 3 root + 3 subcollections
+- **Storage Buckets:** 1 (profile-photos)
 
 ---
 
