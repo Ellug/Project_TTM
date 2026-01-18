@@ -51,6 +51,20 @@ const checkboxPattern = /^(\s*)([-*+]\s+)?\[(\s|x|X)?\]\s*(.*)$/;
 
 const parseFence = (line: string) => line.match(/^\s*([`~]{3,})/);
 
+const markdownHelpItems = [
+  { label: "Heading", example: "# Title" },
+  { label: "Bold / italic", example: "**bold** / *italic*" },
+  { label: "Strikethrough", example: "~~deleted~~" },
+  { label: "Link", example: "[text](url)" },
+  { label: "Inline code", example: "`code`" },
+  { label: "Code block", example: "```lang" },
+  { label: "List", example: "- item or 1. item" },
+  { label: "Checklist", example: "- [ ] task / - [x] done" },
+  { label: "Table", example: "| A | B |" },
+  { label: "Quote", example: "> quote" },
+  { label: "Highlight", example: "%%alert%%" },
+];
+
 const TaskListLineContext = createContext<number | null>(null);
 
 const useTaskListLineIndex = () => useContext(TaskListLineContext);
@@ -212,11 +226,13 @@ export const TaskDetailsPanel = ({
   const [detailsMode, setDetailsMode] = useState<"preview" | "edit">(
     "preview"
   );
+  const [showMarkdownHelp, setShowMarkdownHelp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const previousTaskId = useRef<string | null>(null);
   const descriptionRef = useRef(description);
+  const markdownHelpRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     descriptionRef.current = description;
@@ -237,6 +253,23 @@ export const TaskDetailsPanel = ({
       setDetailsMode("preview");
     }
   }, [canEdit]);
+
+  useEffect(() => {
+    if (!showMarkdownHelp) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target || !markdownHelpRef.current) return;
+      if (markdownHelpRef.current.contains(target)) return;
+      setShowMarkdownHelp(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () =>
+      document.removeEventListener("pointerdown", handlePointerDown);
+  }, [showMarkdownHelp]);
+
+  useEffect(() => {
+    setShowMarkdownHelp(false);
+  }, [task?.id]);
 
   const assignedMembers = useMemo(
     () =>
@@ -492,6 +525,45 @@ export const TaskDetailsPanel = ({
                 Details
               </p>
               <Chip>Markdown</Chip>
+              <div className="relative" ref={markdownHelpRef}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="!px-2 !py-1 text-[10px] uppercase tracking-[0.2em]"
+                  aria-expanded={showMarkdownHelp}
+                  aria-haspopup="true"
+                  onClick={() =>
+                    setShowMarkdownHelp((prev) => !prev)
+                  }
+                >
+                  Help
+                </Button>
+                {showMarkdownHelp && (
+                  <div
+                    className="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 text-xs text-[var(--muted)] shadow-[var(--shadow)]"
+                    role="tooltip"
+                  >
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text)]">
+                      Markdown guide
+                    </p>
+                    <ul className="mt-2 grid gap-2">
+                      {markdownHelpItems.map((item) => (
+                        <li
+                          key={item.label}
+                          className="grid grid-cols-[110px_1fr] items-start gap-2"
+                        >
+                          <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
+                            {item.label}
+                          </span>
+                          <span className="font-mono text-[11px] text-[var(--text)]">
+                            {item.example}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
             {canEdit && (
               <div className="flex gap-2">
@@ -529,7 +601,11 @@ export const TaskDetailsPanel = ({
           ) : (
             <div className="markdown mt-3 text-sm text-[var(--text)]">
               <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkBreaks, remarkDanger]}
+                remarkPlugins={[
+                  [remarkGfm, { singleTilde: false }],
+                  remarkBreaks,
+                  remarkDanger,
+                ]}
                 components={{
                   input: ({ node, ...props }: MarkdownCheckboxProps) => {
                     const lineIndexFromContext = useTaskListLineIndex();

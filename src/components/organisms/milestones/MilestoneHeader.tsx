@@ -18,6 +18,12 @@ type MilestoneHeaderProps = {
   milestone: Milestone | null;
   canEdit: boolean;
   onDeleted: () => void;
+  onUpdated?: (updates: {
+    title: string;
+    description: string;
+    status: Milestone["status"];
+    dueDate: string;
+  }) => void;
 };
 
 export const MilestoneHeader = ({
@@ -25,6 +31,7 @@ export const MilestoneHeader = ({
   milestone,
   canEdit,
   onDeleted,
+  onUpdated,
 }: MilestoneHeaderProps) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(milestone?.title ?? "");
@@ -55,6 +62,12 @@ export const MilestoneHeader = ({
         dueDate,
       });
       setEditing(false);
+      onUpdated?.({
+        title: title.trim(),
+        description: description.trim(),
+        status,
+        dueDate,
+      });
     } finally {
       setSaving(false);
     }

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import type { Milestone } from "@/lib/types";
 import { MilestoneService } from "@/lib/services/MilestoneService";
+import { DiscordService } from "@/lib/services/DiscordService";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useProject } from "@/lib/hooks/useProject";
 import { toDateString } from "@/lib/utils";
 import { Button } from "@/components/atoms/Button";
 import { ButtonLink } from "@/components/atoms/ButtonLink";
@@ -24,11 +27,16 @@ export const MilestoneCard = ({
   canEdit,
   animationDelayMs,
 }: MilestoneCardProps) => {
+  const { profile } = useAuth();
+  const project = useProject(projectId);
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(milestone.title);
   const [description, setDescription] = useState(milestone.description || "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const userName = profile?.nickname || profile?.displayName || "Unknown";
+  const projectName = project?.name || "Unknown Project";
 
   useEffect(() => {
     if (isEditing) return;
@@ -45,6 +53,11 @@ export const MilestoneCard = ({
         description: description.trim(),
       });
       setIsEditing(false);
+      void DiscordService.notifyMilestoneUpdated(
+        userName,
+        projectName,
+        title.trim()
+      );
     } finally {
       setSaving(false);
     }
@@ -64,7 +77,9 @@ export const MilestoneCard = ({
     if (!confirmed) return;
     setDeleting(true);
     try {
+      const milestoneName = milestone.title;
       await MilestoneService.deleteMilestoneCascade(projectId, milestone.id);
+      void DiscordService.notifyMilestoneDeleted(userName, projectName, milestoneName);
     } finally {
       setDeleting(false);
     }

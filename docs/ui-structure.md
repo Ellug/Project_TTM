@@ -77,6 +77,8 @@ connections to reduce future discovery work.
   - Profile photo upload/delete via Firebase Storage.
 - `CsvFormatService`
   - Subscribe/create/delete user CSV formats.
+- `DiscordService`
+  - Sends Discord webhook notifications via `/api/discord-notify`.
 
 ## Importers
 - `piratesCsv`
@@ -95,6 +97,7 @@ connections to reduce future discovery work.
 ## Data Flow (Summary)
 - Pages subscribe via hooks → services → Firestore snapshots.
 - Mutations go through service classes for Firestore updates.
+- Notification flow: UI actions → `DiscordService` → `/api/discord-notify`.
 - CSV import pipeline: `ProjectImportPanel` → importer → `MilestoneService`
   + `TaskService`.
 - Task Board/Table share the same `onUpdate` handler so ordering edits remain

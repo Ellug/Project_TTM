@@ -5,6 +5,8 @@ import type { MemberRole, Project, UserProfile } from "@/lib/types";
 import { memberRoles } from "@/lib/constants";
 import { ProjectService } from "@/lib/services/ProjectService";
 import { UserService } from "@/lib/services/UserService";
+import { DiscordService } from "@/lib/services/DiscordService";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Avatar } from "@/components/atoms/Avatar";
 import { Button } from "@/components/atoms/Button";
 import { Chip } from "@/components/atoms/Chip";
@@ -26,12 +28,15 @@ export const ProjectMembersPanel = ({
   members,
   isOwner,
 }: ProjectMembersPanelProps) => {
+  const { profile } = useAuth();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteMessage, setInviteMessage] = useState("");
   const [inviting, setInviting] = useState(false);
   const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
   const [isInviteFocused, setIsInviteFocused] = useState(false);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+
+  const userName = profile?.nickname || profile?.displayName || "Unknown";
 
   const assignableRoles = memberRoles.filter((role) => role !== "owner");
 
@@ -91,6 +96,9 @@ export const ProjectMembersPanel = ({
       }
       setInviteMessage(`Invited ${invitee.nickname || invitee.email}.`);
       setInviteEmail("");
+      const invitedName = invitee.nickname || invitee.displayName || invitee.email;
+      void DiscordService.notifyMemberInvited(userName, project.name, invitedName);
+      void DiscordService.notifyMemberJoined(invitedName, project.name);
     } catch (error) {
       setInviteMessage(
         error instanceof Error ? error.message : "Invite failed."
@@ -122,6 +130,7 @@ export const ProjectMembersPanel = ({
     setRemovingMemberId(memberId);
     try {
       await ProjectService.removeMember(projectId, memberId);
+      void DiscordService.notifyMemberRemoved(project.name, memberName);
     } finally {
       setRemovingMemberId(null);
     }

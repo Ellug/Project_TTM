@@ -8,9 +8,10 @@ import { Panel } from "@/components/atoms/Panel";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { ProjectService } from "@/lib/services/ProjectService";
+import { DiscordService } from "@/lib/services/DiscordService";
 
 export default function ProjectsPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const projects = useProjects(user?.uid);
 
   const handleCreate = async (name: string, description: string) => {
@@ -20,6 +21,8 @@ export default function ProjectsPage() {
       description,
       ownerId: user.uid,
     });
+    const userName = profile?.nickname || profile?.displayName || "Unknown";
+    void DiscordService.notifyProjectCreated(userName, name);
   };
 
   return (

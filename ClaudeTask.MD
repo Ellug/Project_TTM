@@ -30,7 +30,8 @@ src/lib/services/
 ├── MilestoneService.ts    # Milestones
 ├── TaskService.ts         # Tasks
 ├── UserService.ts         # User profiles, email lookup, photo upload
-└── CsvFormatService.ts    # CSV format templates
+├── CsvFormatService.ts    # CSV format templates
+└── DiscordService.ts      # Discord webhook notifications
 ```
 
 ### Custom Hooks (Data Fetching)
@@ -52,6 +53,12 @@ src/app/
 ├── projects/page.tsx                           # Projects list
 ├── projects/[projectId]/milestones/page.tsx    # Milestones + calendar
 └── projects/[projectId]/milestones/[milestoneId]/page.tsx  # Tasks (board/table)
+```
+
+### API Routes
+```
+src/app/api/
+└── discord-notify/route.ts   # Server-side Discord webhook proxy
 ```
 
 ### Components (Atomic Design)
@@ -161,6 +168,20 @@ deleteFormat(userId, formatId)
 
 **Firestore Path:** `users/{uid}/csvFormats/{formatId}`
 **Columns:** `{scene?, category?, feature?, detail?, logic?, progress?, result?}`
+
+---
+
+### DiscordService ([DiscordService.ts](src/lib/services/DiscordService.ts))
+
+```typescript
+notifyProjectCreated(userName, projectName)
+notifyMilestoneCreated(userName, projectName, milestoneName)
+notifyTaskUpdated(userName, taskName, details?)
+// ... other activity notifications
+```
+
+**API Route:** `src/app/api/discord-notify/route.ts`
+**Env:** `DISCORD_WEBHOOK_URL` (server-side)
 
 ---
 
@@ -480,7 +501,7 @@ await UserService.updateProfile(uid, { nickname, photoURL })
 ### Feature Additions
 - [ ] Milestone timeline/Gantt view
 - [ ] Task templates and recurring tasks
-- [ ] Notifications (due soon, mentions, status changes)
+- [ ] In-app notifications (due soon, mentions, status changes)
 - [ ] Activity log and comments per task
 - [ ] CSV export functionality
 - [ ] Integrations (Google Sheets, Jira, Trello)

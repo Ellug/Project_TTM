@@ -20,6 +20,7 @@ import { useTasks } from "@/lib/hooks/useTasks";
 import { canEditProjectContent, resolveMemberRole } from "@/lib/permissions";
 import { ProjectService } from "@/lib/services/ProjectService";
 import { TaskService } from "@/lib/services/TaskService";
+import { DiscordService } from "@/lib/services/DiscordService";
 import type { Task } from "@/lib/types";
 
 export default function MilestoneTasksPage() {
@@ -31,7 +32,7 @@ export default function MilestoneTasksPage() {
   const milestoneId = Array.isArray(params.milestoneId)
     ? params.milestoneId[0]
     : params.milestoneId;
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const project = useProject(projectId);
   const milestone = useMilestone(projectId, milestoneId);
@@ -41,6 +42,20 @@ export default function MilestoneTasksPage() {
   const currentRole = resolveMemberRole(project, user?.uid);
   const canEditTasks = canEditProjectContent(currentRole);
   const orderSeedRef = useRef<Set<string>>(new Set());
+
+  const userName = profile?.nickname || profile?.displayName || "Unknown";
+  const projectName = project?.name || "Unknown Project";
+  const milestoneName = milestone?.title || "Unknown Milestone";
+  const memberNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    members.forEach((member) => {
+      map.set(
+        member.uid,
+        member.nickname || member.displayName || member.email || "User"
+      );
+    });
+    return map;
+  }, [members]);
 
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -64,17 +79,78 @@ export default function MilestoneTasksPage() {
     });
     await ProjectService.touchProject(projectId);
     setSelectedTaskId(docRef.id);
+    void DiscordService.notifyTaskCreated(
+      userName,
+      projectName,
+      milestoneName,
+      data.title
+    );
+  };
+
+  const resolveTaskName = (taskId: string, updates?: Partial<Task>) => {
+    if (updates?.title?.trim()) return updates.title.trim();
+    return tasks.find((task) => task.id === taskId)?.title || "Unknown task";
+  };
+
+  const buildTaskUpdateDetails = (updates: Partial<Task>) => {
+    const detailParts: string[] = [];
+    if (updates.title?.trim()) {
+      detailParts.push(`Title: ${updates.title.trim()}`);
+    }
+    if (updates.status) detailParts.push(`Status: ${updates.status}`);
+    if (updates.priority) detailParts.push(`Priority: ${updates.priority}`);
+    if (updates.dueDate !== undefined) {
+      detailParts.push(
+        updates.dueDate ? `Due: ${updates.dueDate}` : "Due date cleared"
+      );
+    }
+    if (updates.assigneeIds) {
+      const names = updates.assigneeIds
+        .map((id) => memberNameById.get(id) ?? id)
+        .filter((name) => name.trim().length > 0);
+      detailParts.push(
+        names.length ? `Assignees: ${names.join(", ")}` : "Assignees cleared"
+      );
+    }
+    if (updates.labels) {
+      detailParts.push(
+        updates.labels.length
+          ? `Labels: ${updates.labels.join(", ")}`
+          : "Labels cleared"
+      );
+    }
+    if (updates.completed !== undefined) {
+      detailParts.push(
+        updates.completed ? "Marked complete" : "Marked incomplete"
+      );
+    }
+    if (updates.description !== undefined) {
+      detailParts.push("Description updated");
+    }
+    if (updates.order !== undefined) {
+      detailParts.push("Order updated");
+    }
+    return detailParts.join(", ");
   };
 
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     if (!projectId || !milestoneId || !canEditTasks) return;
     await TaskService.updateTask(projectId, milestoneId, taskId, updates);
+    const taskName = resolveTaskName(taskId, updates);
+    const details = buildTaskUpdateDetails(updates);
+    void DiscordService.notifyTaskUpdated(
+      userName,
+      taskName,
+      details || undefined
+    );
   };
 
   const handleDeleteTask = async (taskId: string) => {
     if (!projectId || !milestoneId || !canEditTasks) return;
+    const taskName = resolveTaskName(taskId);
     await TaskService.deleteTask(projectId, milestoneId, taskId);
     setSelectedTaskId(null);
+    void DiscordService.notifyTaskDeleted(userName, taskName);
   };
 
   const selectedTask = useMemo(
@@ -195,11 +271,25 @@ export default function MilestoneTasksPage() {
             projectId={projectId || ""}
             milestone={milestone}
             canEdit={canEditTasks}
-            onDeleted={() =>
-              projectId
-                ? router.push(`/projects/${projectId}/milestones`)
-                : router.push("/projects")
-            }
+            onUpdated={(updates) => {
+              void DiscordService.notifyMilestoneUpdated(
+                userName,
+                projectName,
+                updates.title
+              );
+            }}
+            onDeleted={() => {
+              void DiscordService.notifyMilestoneDeleted(
+                userName,
+                projectName,
+                milestoneName
+              );
+              if (projectId) {
+                router.push(`/projects/${projectId}/milestones`);
+              } else {
+                router.push("/projects");
+              }
+            }}
           />
 
           <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">

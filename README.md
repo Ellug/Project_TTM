@@ -14,6 +14,7 @@
 - CSV import: 기본 포맷 + 커스텀 포맷 저장/선택 + 매핑 미리보기
 - 프로필 사진 업로드 (Firebase Storage, 진행률 표시, 5MB 제한)
 - 다크/라이트 테마 전환
+- Discord 웹훅 알림 (프로젝트/마일스톤/태스크 변경)
 - Firebase 실시간 동기화
 
 ### 기술 스택
@@ -39,6 +40,7 @@ milestones to tasks, and manage execution across board and table views.
 - CSV import with default + custom formats and mapping preview
 - Profile photo upload (Firebase Storage, progress tracking, 5MB limit)
 - Dark/light theme toggle
+- Discord webhook notifications for project/milestone/task changes
 - Firebase realtime sync
 
 ### Tech Stack

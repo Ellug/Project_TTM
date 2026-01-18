@@ -16,6 +16,7 @@ import { useProject } from "@/lib/hooks/useProject";
 import { canEditProjectContent, resolveMemberRole } from "@/lib/permissions";
 import { MilestoneService } from "@/lib/services/MilestoneService";
 import { ProjectService } from "@/lib/services/ProjectService";
+import { DiscordService } from "@/lib/services/DiscordService";
 
 export default function MilestonesPage() {
   const params = useParams();
@@ -23,7 +24,7 @@ export default function MilestonesPage() {
   const projectId = Array.isArray(params.projectId)
     ? params.projectId[0]
     : params.projectId;
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const project = useProject(projectId);
   const milestones = useMilestones(projectId);
@@ -32,6 +33,8 @@ export default function MilestonesPage() {
   const isOwner = user?.uid === project?.ownerId;
   const currentRole = resolveMemberRole(project, user?.uid);
   const canEditMilestones = canEditProjectContent(currentRole);
+
+  const userName = profile?.nickname || profile?.displayName || "Unknown";
 
   const handleCreateMilestone = async (data: {
     title: string;
@@ -42,6 +45,11 @@ export default function MilestonesPage() {
     if (!projectId || !canEditMilestones) return;
     await MilestoneService.createMilestone(projectId, data);
     await ProjectService.touchProject(projectId);
+    void DiscordService.notifyMilestoneCreated(
+      userName,
+      project?.name || "Unknown Project",
+      data.title
+    );
   };
 
   const handleSaveProject = async (name: string, description: string) => {
@@ -51,7 +59,9 @@ export default function MilestonesPage() {
 
   const handleDeleteProject = async () => {
     if (!projectId || !isOwner) return;
+    const projectName = project?.name || "Unknown Project";
     await ProjectService.deleteProjectCascade(projectId);
+    void DiscordService.notifyProjectDeleted(userName, projectName);
     router.push("/projects");
   };
 
