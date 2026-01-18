@@ -109,6 +109,9 @@ export class ProjectService {
         MilestoneService.deleteMilestoneCascade(projectId, milestoneDoc.id)
       )
     );
+    const postsRef = collection(db, "projects", projectId, "posts");
+    const postsSnapshot = await getDocs(postsRef);
+    await Promise.all(postsSnapshot.docs.map((postDoc) => deleteDoc(postDoc.ref)));
     await deleteDoc(doc(db, "projects", projectId));
   }
 

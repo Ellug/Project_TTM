@@ -36,3 +36,10 @@ export const memberRoles: MemberRole[] = [
   "editor",
   "viewer",
 ];
+
+export const boardCategories = [
+  "Notice",
+  "Idea",
+  "Meeting Notes",
+  "Bug Report",
+];

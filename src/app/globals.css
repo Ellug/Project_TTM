@@ -529,6 +529,11 @@ a {
   flex: 1;
 }
 
+.markdown-compact {
+  min-height: 0;
+  flex: initial;
+}
+
 .markdown h1,
 .markdown h2,
 .markdown h3 {

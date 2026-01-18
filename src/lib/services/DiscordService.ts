@@ -9,6 +9,9 @@ type NotificationType =
   | "milestone_created"
   | "milestone_updated"
   | "milestone_deleted"
+  | "board_post_created"
+  | "board_post_updated"
+  | "board_post_deleted"
   | "task_created"
   | "task_updated"
   | "task_deleted";
@@ -19,6 +22,7 @@ type NotificationPayload = {
   projectName?: string;
   milestoneName?: string;
   taskName?: string;
+  postTitle?: string;
   details?: string;
 };
 
@@ -128,6 +132,48 @@ export class DiscordService {
       userName,
       projectName,
       milestoneName,
+    });
+  }
+
+  // Board post notifications
+  static notifyBoardPostCreated(
+    userName: string,
+    projectName: string,
+    postTitle: string
+  ) {
+    return this.notify({
+      type: "board_post_created",
+      userName,
+      projectName,
+      postTitle,
+    });
+  }
+
+  static notifyBoardPostUpdated(
+    userName: string,
+    projectName: string,
+    postTitle: string,
+    details?: string
+  ) {
+    return this.notify({
+      type: "board_post_updated",
+      userName,
+      projectName,
+      postTitle,
+      details,
+    });
+  }
+
+  static notifyBoardPostDeleted(
+    userName: string,
+    projectName: string,
+    postTitle: string
+  ) {
+    return this.notify({
+      type: "board_post_deleted",
+      userName,
+      projectName,
+      postTitle,
     });
   }
 

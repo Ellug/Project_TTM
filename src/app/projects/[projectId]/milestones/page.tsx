@@ -5,6 +5,7 @@ import { AuthGate } from "@/components/organisms/AuthGate";
 import { MilestoneCreateForm } from "@/components/organisms/milestones/MilestoneCreateForm";
 import { MilestoneCalendar } from "@/components/organisms/milestones/MilestoneCalendar";
 import { MilestoneCard } from "@/components/organisms/milestones/MilestoneCard";
+import { ProjectBoard } from "@/components/organisms/projects/ProjectBoard";
 import { ProjectHeader } from "@/components/organisms/projects/ProjectHeader";
 import { ProjectMembersPanel } from "@/components/organisms/projects/ProjectMembersPanel";
 import { Panel } from "@/components/atoms/Panel";
@@ -12,6 +13,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { milestoneStatuses } from "@/lib/constants";
 import { useMembers } from "@/lib/hooks/useMembers";
 import { useMilestones } from "@/lib/hooks/useMilestones";
+import { useProjectPosts } from "@/lib/hooks/useProjectPosts";
 import { useProject } from "@/lib/hooks/useProject";
 import { canEditProjectContent, resolveMemberRole } from "@/lib/permissions";
 import { MilestoneService } from "@/lib/services/MilestoneService";
@@ -28,6 +30,7 @@ export default function MilestonesPage() {
 
   const project = useProject(projectId);
   const milestones = useMilestones(projectId);
+  const posts = useProjectPosts(projectId);
   const members = useMembers(project?.memberIds);
 
   const isOwner = user?.uid === project?.ownerId;
@@ -89,6 +92,15 @@ export default function MilestonesPage() {
             isOwner={isOwner}
           />
         </section>
+
+        <ProjectBoard
+          projectId={projectId || ""}
+          project={project}
+          posts={posts}
+          milestones={milestones}
+          members={members}
+          canEdit={canEditMilestones}
+        />
 
         <MilestoneCalendar
           projectId={projectId || ""}

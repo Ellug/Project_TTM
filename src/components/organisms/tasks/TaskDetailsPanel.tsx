@@ -1,18 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useEffect,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentPropsWithoutRef,
-} from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkBreaks from "remark-breaks";
-import clsx from "clsx";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { taskLabels, taskPriorities, taskStatuses, type TaskLabel } from "@/lib/constants";
 import type { Task, UserProfile } from "@/lib/types";
 import { Avatar } from "@/components/atoms/Avatar";
@@ -21,178 +9,9 @@ import { Chip } from "@/components/atoms/Chip";
 import { InputField } from "@/components/atoms/InputField";
 import { Panel } from "@/components/atoms/Panel";
 import { SelectField } from "@/components/atoms/SelectField";
-import { TextAreaField } from "@/components/atoms/TextAreaField";
 import { FormField } from "@/components/molecules/FormField";
+import { MarkdownEditorPanel } from "@/components/molecules/MarkdownEditorPanel";
 import { toDateString } from "@/lib/utils";
-import { remarkDanger } from "@/lib/remark-danger";
-
-type MarkdownPosition = {
-  start?: {
-    line?: number;
-  };
-};
-
-type MarkdownNode = {
-  position?: MarkdownPosition;
-  properties?: {
-    className?: string | string[];
-  };
-};
-
-type MarkdownCheckboxProps = ComponentPropsWithoutRef<"input"> & {
-  node?: MarkdownNode;
-};
-
-type MarkdownListItemProps = ComponentPropsWithoutRef<"li"> & {
-  node?: MarkdownNode;
-};
-
-const checkboxPattern = /^(\s*)([-*+]\s+)?\[(\s|x|X)?\]\s*(.*)$/;
-
-const parseFence = (line: string) => line.match(/^\s*([`~]{3,})/);
-
-const markdownHelpItems = [
-  { label: "Heading", example: "# Title" },
-  { label: "Bold / italic", example: "**bold** / *italic*" },
-  { label: "Strikethrough", example: "~~deleted~~" },
-  { label: "Link", example: "[text](url)" },
-  { label: "Inline code", example: "`code`" },
-  { label: "Code block", example: "```lang" },
-  { label: "List", example: "- item or 1. item" },
-  { label: "Checklist", example: "- [ ] task / - [x] done" },
-  { label: "Table", example: "| A | B |" },
-  { label: "Quote", example: "> quote" },
-  { label: "Highlight", example: "%%alert%%" },
-];
-
-const TaskListLineContext = createContext<number | null>(null);
-
-const useTaskListLineIndex = () => useContext(TaskListLineContext);
-
-const getCheckboxStateAtLine = (value: string, lineIndex: number) => {
-  const lines = value.split("\n");
-  if (lineIndex < 0 || lineIndex >= lines.length) return null;
-  const match = lines[lineIndex].match(checkboxPattern);
-  if (!match) return null;
-  const mark = match[3] ?? "";
-  return mark.trim().toLowerCase() === "x";
-};
-
-const normalizeMarkdownCheckboxes = (value: string) => {
-  const lines = value.split("\n");
-  let inFence = false;
-  let fenceChar = "";
-  let fenceSize = 0;
-
-  return lines
-    .map((line) => {
-      const fenceMatch = parseFence(line);
-      if (fenceMatch) {
-        const fence = fenceMatch[1];
-        if (!inFence) {
-          inFence = true;
-          fenceChar = fence[0];
-          fenceSize = fence.length;
-        } else if (fence[0] === fenceChar && fence.length >= fenceSize) {
-          inFence = false;
-          fenceChar = "";
-          fenceSize = 0;
-        }
-        return line;
-      }
-      if (inFence) return line;
-      const match = line.match(checkboxPattern);
-      if (!match) return line;
-      const indent = match[1] ?? "";
-      const listMarker = match[2] ?? "";
-      const mark = match[3] ?? "";
-      const content = match[4] ?? "";
-      const checked = mark.trim().toLowerCase() === "x";
-      const bracket = checked ? "[x]" : "[ ]";
-      const prefix = listMarker.trim().length ? listMarker : "- ";
-      return `${indent}${prefix}${bracket}${content ? ` ${content}` : ""}`;
-    })
-    .join("\n");
-};
-
-const findCheckboxLineIndex = (value: string, targetOrder: number) => {
-  const lines = value.split("\n");
-  let inFence = false;
-  let fenceChar = "";
-  let fenceSize = 0;
-  let order = 0;
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const fenceMatch = parseFence(line);
-    if (fenceMatch) {
-      const fence = fenceMatch[1];
-      if (!inFence) {
-        inFence = true;
-        fenceChar = fence[0];
-        fenceSize = fence.length;
-      } else if (fence[0] === fenceChar && fence.length >= fenceSize) {
-        inFence = false;
-        fenceChar = "";
-        fenceSize = 0;
-      }
-      continue;
-    }
-    if (inFence) continue;
-    if (checkboxPattern.test(line)) {
-      if (order === targetOrder) {
-        return index;
-      }
-      order += 1;
-    }
-  }
-
-  return undefined;
-};
-
-const toggleCheckboxLine = (
-  value: string,
-  lineIndex: number,
-  nextChecked: boolean
-) => {
-  const lines = value.split("\n");
-  if (lineIndex < 0 || lineIndex >= lines.length) return value;
-
-  let inFence = false;
-  let fenceChar = "";
-  let fenceSize = 0;
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const fenceMatch = parseFence(line);
-    if (fenceMatch) {
-      const fence = fenceMatch[1];
-      if (!inFence) {
-        inFence = true;
-        fenceChar = fence[0];
-        fenceSize = fence.length;
-      } else if (fence[0] === fenceChar && fence.length >= fenceSize) {
-        inFence = false;
-        fenceChar = "";
-        fenceSize = 0;
-      }
-    }
-    if (index === lineIndex) {
-      if (inFence) return value;
-      const match = line.match(checkboxPattern);
-      if (!match) return value;
-      const indent = match[1] ?? "";
-      const listMarker = match[2] ?? "";
-      const content = match[4] ?? "";
-      const marker = nextChecked ? "[x]" : "[ ]";
-      const prefix = listMarker ? `${indent}${listMarker}` : indent;
-      lines[index] = `${prefix}${marker}${content ? ` ${content}` : ""}`;
-      break;
-    }
-  }
-
-  return lines.join("\n");
-};
 
 const resolveTaskLabel = (labels: string[]) => {
   const match = labels.find((label) =>
@@ -223,20 +42,10 @@ export const TaskDetailsPanel = ({
     resolveTaskLabel(task?.labels ?? [])
   );
   const [description, setDescription] = useState(task?.description ?? "");
-  const [detailsMode, setDetailsMode] = useState<"preview" | "edit">(
-    "preview"
-  );
-  const [showMarkdownHelp, setShowMarkdownHelp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const previousTaskId = useRef<string | null>(null);
-  const descriptionRef = useRef(description);
-  const markdownHelpRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    descriptionRef.current = description;
-  }, [description]);
 
   useEffect(() => {
     if (!task) return;
@@ -245,31 +54,7 @@ export const TaskDetailsPanel = ({
     setTitle(task.title);
     setSelectedLabel(resolveTaskLabel(task.labels));
     setDescription(task.description);
-    setDetailsMode("preview");
   }, [task]);
-
-  useEffect(() => {
-    if (!canEdit) {
-      setDetailsMode("preview");
-    }
-  }, [canEdit]);
-
-  useEffect(() => {
-    if (!showMarkdownHelp) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      const target = event.target as Node | null;
-      if (!target || !markdownHelpRef.current) return;
-      if (markdownHelpRef.current.contains(target)) return;
-      setShowMarkdownHelp(false);
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () =>
-      document.removeEventListener("pointerdown", handlePointerDown);
-  }, [showMarkdownHelp]);
-
-  useEffect(() => {
-    setShowMarkdownHelp(false);
-  }, [task?.id]);
 
   const assignedMembers = useMemo(
     () =>
@@ -278,13 +63,6 @@ export const TaskDetailsPanel = ({
         : [],
     [members, task]
   );
-
-  const renderedDescription = useMemo(
-    () => normalizeMarkdownCheckboxes(description),
-    [description]
-  );
-  const checkboxIndexRef = useRef(0);
-  checkboxIndexRef.current = 0;
 
   const handleTitleCommit = async () => {
     if (!task || !canEdit) return;
@@ -321,7 +99,6 @@ export const TaskDetailsPanel = ({
     setSaving(true);
     try {
       await onUpdate(task.id, { description });
-      setDetailsMode("preview");
     } finally {
       setSaving(false);
     }
@@ -342,19 +119,6 @@ export const TaskDetailsPanel = ({
     } finally {
       setDeleting(false);
     }
-  };
-
-  const handleToggleCheckbox = (lineIndex: number, nextChecked: boolean) => {
-    if (!task || !canEdit) return;
-    const nextDescription = toggleCheckboxLine(
-      descriptionRef.current,
-      lineIndex,
-      nextChecked
-    );
-    if (nextDescription === descriptionRef.current) return;
-    descriptionRef.current = nextDescription;
-    setDescription(nextDescription);
-    void onUpdate(task.id, { description: nextDescription });
   };
 
   if (!task) {
@@ -518,206 +282,21 @@ export const TaskDetailsPanel = ({
           </div>
         </Panel>
 
-        <Panel className="markdown-panel p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-                Details
-              </p>
-              <Chip>Markdown</Chip>
-              <div className="relative" ref={markdownHelpRef}>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="!px-2 !py-1 text-[10px] uppercase tracking-[0.2em]"
-                  aria-expanded={showMarkdownHelp}
-                  aria-haspopup="true"
-                  onClick={() =>
-                    setShowMarkdownHelp((prev) => !prev)
-                  }
-                >
-                  Help
-                </Button>
-                {showMarkdownHelp && (
-                  <div
-                    className="absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 text-xs text-[var(--muted)] shadow-[var(--shadow)]"
-                    role="tooltip"
-                  >
-                    <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--text)]">
-                      Markdown guide
-                    </p>
-                    <ul className="mt-2 grid gap-2">
-                      {markdownHelpItems.map((item) => (
-                        <li
-                          key={item.label}
-                          className="grid grid-cols-[110px_1fr] items-start gap-2"
-                        >
-                          <span className="text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]">
-                            {item.label}
-                          </span>
-                          <span className="font-mono text-[11px] text-[var(--text)]">
-                            {item.example}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-            {canEdit && (
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  className={clsx(
-                    "text-xs uppercase tracking-[0.2em]",
-                    detailsMode === "preview" && "text-[var(--text)]"
-                  )}
-                  onClick={() => setDetailsMode("preview")}
-                >
-                  Preview
-                </Button>
-                <Button
-                  variant="ghost"
-                  className={clsx(
-                    "text-xs uppercase tracking-[0.2em]",
-                    detailsMode === "edit" && "text-[var(--text)]"
-                  )}
-                  onClick={() => setDetailsMode("edit")}
-                >
-                  Edit
-                </Button>
-              </div>
-            )}
-          </div>
-          {detailsMode === "edit" ? (
-            <TextAreaField
-              className="markdown-input mt-3 text-xs"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Write markdown details..."
-              readOnly={!canEdit}
-            />
-          ) : (
-            <div className="markdown mt-3 text-sm text-[var(--text)]">
-              <ReactMarkdown
-                remarkPlugins={[
-                  [remarkGfm, { singleTilde: false }],
-                  remarkBreaks,
-                  remarkDanger,
-                ]}
-                components={{
-                  input: ({ node, ...props }: MarkdownCheckboxProps) => {
-                    const lineIndexFromContext = useTaskListLineIndex();
-                    if (props.type !== "checkbox") {
-                      return <input {...props} />;
-                    }
-                    const checkboxOrder = checkboxIndexRef.current;
-                    checkboxIndexRef.current += 1;
-                    const lineIndexFromNode = node?.position?.start?.line
-                      ? node.position.start.line - 1
-                      : undefined;
-                    const lineIndex =
-                      lineIndexFromContext ??
-                      lineIndexFromNode ??
-                      findCheckboxLineIndex(description, checkboxOrder);
-                    const canToggle =
-                      canEdit && typeof lineIndex === "number" && lineIndex >= 0;
-                    const lineChecked =
-                      typeof lineIndex === "number"
-                        ? getCheckboxStateAtLine(description, lineIndex)
-                        : null;
-                    const isChecked =
-                      lineChecked ?? Boolean(props.checked);
-                    return (
-                      <input
-                        {...props}
-                        type="checkbox"
-                        checked={isChecked}
-                        disabled={!canToggle}
-                        readOnly
-                        onClick={(event) => {
-                          if (!canEdit) return;
-                          event.preventDefault();
-                          const resolvedLineIndex =
-                            typeof lineIndex === "number"
-                              ? lineIndex
-                              : findCheckboxLineIndex(
-                                  descriptionRef.current,
-                                  checkboxOrder
-                                );
-                          if (resolvedLineIndex === undefined) return;
-                          handleToggleCheckbox(
-                            resolvedLineIndex,
-                            !isChecked
-                          );
-                        }}
-                        onKeyDown={(event) => {
-                          if (!canEdit) return;
-                          if (event.key !== " " && event.key !== "Enter") return;
-                          event.preventDefault();
-                          const resolvedLineIndex =
-                            typeof lineIndex === "number"
-                              ? lineIndex
-                              : findCheckboxLineIndex(
-                                  descriptionRef.current,
-                                  checkboxOrder
-                                );
-                          if (resolvedLineIndex === undefined) return;
-                          handleToggleCheckbox(
-                            resolvedLineIndex,
-                            !isChecked
-                          );
-                        }}
-                      />
-                    );
-                  },
-                  li: ({ node, children, ...props }: MarkdownListItemProps) => {
-                    const classNames = node?.properties?.className;
-                    const classList = Array.isArray(classNames)
-                      ? classNames
-                      : typeof classNames === "string"
-                        ? classNames.split(" ")
-                        : [];
-                    const isTaskItem = classList.includes("task-list-item");
-                    if (!isTaskItem) {
-                      return <li {...props}>{children}</li>;
-                    }
-                    const lineIndex = node?.position?.start?.line
-                      ? node.position.start.line - 1
-                      : null;
-                    return (
-                      <li {...props}>
-                        <TaskListLineContext.Provider value={lineIndex}>
-                          {children}
-                        </TaskListLineContext.Provider>
-                      </li>
-                    );
-                  },
-                }}
-              >
-                {renderedDescription ||
-                  "No details yet. Switch to edit mode."}
-              </ReactMarkdown>
-            </div>
-          )}
-          {detailsMode === "edit" && canEdit && (
-            <div className="mt-3 flex items-center gap-3">
-              <Button
-                variant="primary"
-                className="text-xs"
-                onClick={handleSaveDescription}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Save details"}
-              </Button>
-              <span className="text-xs text-[var(--muted)]">
-                Preview supports tables, code blocks, %%alert%%, and checklists:
-                [] or [x] (start a line and click to toggle).
-              </span>
-            </div>
-          )}
-        </Panel>
+        <MarkdownEditorPanel
+          value={description}
+          onChange={setDescription}
+          onSave={handleSaveDescription}
+          onAutoSave={(nextValue) => {
+            if (!task || !canEdit) return;
+            void onUpdate(task.id, { description: nextValue });
+          }}
+          canEdit={canEdit}
+          saving={saving}
+          resetKey={task.id}
+          placeholder="Write markdown details..."
+          emptyText="No details yet. Switch to edit mode."
+          hint="Preview supports tables, code blocks, %%alert%%, and checklists: [] or [x] (start a line and click to toggle)."
+        />
 
         <Panel className="p-3">
           <div className="flex items-center justify-between gap-2">

@@ -31,6 +31,7 @@ src/lib/services/
 ├── TaskService.ts         # Tasks
 ├── UserService.ts         # User profiles, email lookup, photo upload
 ├── CsvFormatService.ts    # CSV format templates
+├── ProjectPostService.ts  # Project board posts
 └── DiscordService.ts      # Discord webhook notifications
 ```
 
@@ -41,6 +42,7 @@ src/lib/hooks/
 ├── useProject.ts          # Single project
 ├── useMilestones.ts       # Project's milestones
 ├── useMilestone.ts        # Single milestone
+├── useProjectPosts.ts     # Project board posts
 ├── useTasks.ts            # Milestone's tasks (real-time)
 └── useMembers.ts          # Member profiles batch fetch
 ```
@@ -51,7 +53,7 @@ src/app/
 ├── page.tsx                                    # Landing (/)
 ├── profile/page.tsx                            # User profile + photo upload
 ├── projects/page.tsx                           # Projects list
-├── projects/[projectId]/milestones/page.tsx    # Milestones + calendar
+├── projects/[projectId]/milestones/page.tsx    # Milestones + board + calendar
 └── projects/[projectId]/milestones/[milestoneId]/page.tsx  # Tasks (board/table)
 ```
 
@@ -65,7 +67,7 @@ src/app/api/
 ```
 src/components/
 ├── atoms/           # Basic UI: Button, Card, Chip, Avatar, InputField, etc.
-├── molecules/       # FormField, ThemeToggle
+├── molecules/       # FormField, MarkdownEditorPanel, ThemeToggle
 ├── organisms/       # Feature components (see breakdown below)
 └── providers/       # AuthProvider, ThemeProvider
 ```
@@ -171,6 +173,20 @@ deleteFormat(userId, formatId)
 
 ---
 
+### ProjectPostService ([ProjectPostService.ts](src/lib/services/ProjectPostService.ts))
+
+```typescript
+subscribePosts(projectId, callback)
+
+createPost(projectId, {title, content, category, authorId, authorName, authorPhotoURL})
+updatePost(projectId, postId, {title?, content?, category?})
+deletePost(projectId, postId)
+```
+
+**Firestore Path:** `projects/{projectId}/posts`
+
+---
+
 ### DiscordService ([DiscordService.ts](src/lib/services/DiscordService.ts))
 
 ```typescript
@@ -192,6 +208,7 @@ notifyTaskUpdated(userName, taskName, details?)
 - **[ProjectCreateForm.tsx](src/components/organisms/projects/ProjectCreateForm.tsx)** - Create project form
 - **[ProjectHeader.tsx](src/components/organisms/projects/ProjectHeader.tsx)** - Project title + actions
 - **[ProjectImportPanel.tsx](src/components/organisms/projects/ProjectImportPanel.tsx)** - CSV import wizard
+- **[ProjectBoard.tsx](src/components/organisms/projects/ProjectBoard.tsx)** - Toggleable project board with posts, category filters (with visual highlighting), and animated toggle interactions
 - **[ProjectMembersPanel.tsx](src/components/organisms/projects/ProjectMembersPanel.tsx)** - Member management panel
 
 ### Organisms - Milestones
@@ -307,6 +324,16 @@ projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}  📎 Subcollection
   ├── order: number  (for drag-drop ordering)
   ├── dueDate: string  (ISO format)
   ├── creatorId: string
+  ├── createdAt: Timestamp
+  └── updatedAt: Timestamp
+
+projects/{projectId}/posts/{postId}  📎 Subcollection
+  ├── title: string
+  ├── content: string  (Markdown)
+  ├── category: string
+  ├── authorId: string
+  ├── authorName: string
+  ├── authorPhotoURL: string
   ├── createdAt: Timestamp
   └── updatedAt: Timestamp
 ```

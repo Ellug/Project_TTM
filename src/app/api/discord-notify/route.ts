@@ -11,6 +11,9 @@ type NotificationType =
   | "milestone_created"
   | "milestone_updated"
   | "milestone_deleted"
+  | "board_post_created"
+  | "board_post_updated"
+  | "board_post_deleted"
   | "task_created"
   | "task_updated"
   | "task_deleted";
@@ -21,6 +24,7 @@ type NotificationPayload = {
   projectName?: string;
   milestoneName?: string;
   taskName?: string;
+  postTitle?: string;
   details?: string;
 };
 
@@ -41,6 +45,12 @@ const getEmoji = (type: NotificationType): string => {
       return "📝";
     case "milestone_deleted":
       return "❌";
+    case "board_post_created":
+      return "📰";
+    case "board_post_updated":
+      return "✏️";
+    case "board_post_deleted":
+      return "🧹";
     case "task_created":
       return "✅";
     case "task_updated":
@@ -54,7 +64,14 @@ const getEmoji = (type: NotificationType): string => {
 
 const formatMessage = (payload: NotificationPayload): string => {
   const emoji = getEmoji(payload.type);
-  const { userName, projectName, milestoneName, taskName, details } = payload;
+  const {
+    userName,
+    projectName,
+    milestoneName,
+    taskName,
+    postTitle,
+    details,
+  } = payload;
 
   switch (payload.type) {
     case "project_created":
@@ -73,6 +90,12 @@ const formatMessage = (payload: NotificationPayload): string => {
       return `${emoji} **${userName}**님이 **${projectName}**의 마일스톤 **${milestoneName}**을(를) 수정했습니다.${details ? ` (${details})` : ""}`;
     case "milestone_deleted":
       return `${emoji} **${userName}**님이 **${projectName}**의 마일스톤 **${milestoneName}**을(를) 삭제했습니다.`;
+    case "board_post_created":
+      return `${emoji} **${userName}**님이 **${projectName}** 게시판에 **${postTitle}** 게시글을 작성했습니다.`;
+    case "board_post_updated":
+      return `${emoji} **${userName}**님이 **${projectName}** 게시판의 **${postTitle}** 게시글을 수정했습니다.${details ? ` (${details})` : ""}`;
+    case "board_post_deleted":
+      return `${emoji} **${userName}**님이 **${projectName}** 게시판의 **${postTitle}** 게시글을 삭제했습니다.`;
     case "task_created":
       return `${emoji} **${userName}**님이 **${projectName}** > **${milestoneName}**에 태스크 **${taskName}**을(를) 생성했습니다.`;
     case "task_updated":

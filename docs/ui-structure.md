@@ -17,7 +17,7 @@ connections to reduce future discovery work.
 - `src/app/projects/[projectId]/milestones/page.tsx`
   - Project overview, member management, milestone creation, calendar, and list.
   - Uses `ProjectHeader`, `ProjectMembersPanel`, `MilestoneCreateForm`,
-    `MilestoneCalendar`, and `MilestoneCard`.
+    `ProjectBoard`, `MilestoneCalendar`, and `MilestoneCard`.
 - `src/app/projects/[projectId]/milestones/[milestoneId]/page.tsx`
   - Milestone task workspace with filters, board/table views, and details panel.
   - Uses `MilestoneHeader`, `TaskCreateForm`, `TaskFilters`, `TaskBoard`,
@@ -33,6 +33,7 @@ connections to reduce future discovery work.
 
 ### Molecules
 - FormField (label + control pairing)
+- MarkdownEditorPanel (markdown editor + preview + help tooltip)
 - ThemeToggle (dark/light theme selector)
 
 ### Organisms (Roles + Connections)
@@ -44,6 +45,9 @@ connections to reduce future discovery work.
   format preview, and import trigger.
 - ProjectCard: Project summary and navigation entry.
 - ProjectHeader: Project metadata editing and delete actions.
+- ProjectBoard: Toggleable project bulletin board with categories, markdown posts,
+  and task creation shortcut. Board opens/closes via button, post creation is
+  collapsible, and active category filters have visual highlighting with animations.
 - ProjectMembersPanel: Member list, role updates, invite with autocomplete
   (uses `UserService.subscribeAllUsers`).
 - MilestoneCreateForm: Creates milestones (title, status, due date).
@@ -72,6 +76,8 @@ connections to reduce future discovery work.
   - Subscribe milestones, create/update, delete cascade.
 - `TaskService`
   - Subscribe tasks, create/update/delete, delete tasks for milestone.
+- `ProjectPostService`
+  - Subscribe/create/update/delete project board posts.
 - `UserService`
   - Fetch profiles, invite lookup, and realtime user directory subscription.
   - Profile photo upload/delete via Firebase Storage.
@@ -91,6 +97,7 @@ connections to reduce future discovery work.
 - useProject
 - useMilestones
 - useMilestone
+- useProjectPosts
 - useTasks
 - useMembers
 
@@ -98,6 +105,7 @@ connections to reduce future discovery work.
 - Pages subscribe via hooks → services → Firestore snapshots.
 - Mutations go through service classes for Firestore updates.
 - Notification flow: UI actions → `DiscordService` → `/api/discord-notify`.
+- Project board: `ProjectBoard` → `ProjectPostService` + Markdown editor.
 - CSV import pipeline: `ProjectImportPanel` → importer → `MilestoneService`
   + `TaskService`.
 - Task Board/Table share the same `onUpdate` handler so ordering edits remain

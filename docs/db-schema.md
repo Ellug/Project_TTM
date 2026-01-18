@@ -90,6 +90,22 @@ Stores task information for a milestone.
 | `updatedAt`   | `Timestamp` (optional) | The timestamp when the task was last updated.              |
 | `creatorId`   | `string`               | The UID of the user who created the task.                  |
 
+##### `projects/{projectId}/posts`
+
+Stores project board posts (announcements, ideas, meeting notes, bug reports).
+
+| Field           | Type                   | Description                                                |
+|-----------------|------------------------|------------------------------------------------------------|
+| `id`            | `string`               | The post's unique ID.                                      |
+| `title`         | `string`               | The post title.                                            |
+| `content`       | `string`               | Markdown content of the post.                              |
+| `category`      | `string`               | Category label (e.g. Notice, Bug Report).                  |
+| `authorId`      | `string`               | The UID of the author.                                     |
+| `authorName`    | `string` (optional)    | Snapshot of the author name at creation.                   |
+| `authorPhotoURL`| `string` (optional)    | Snapshot of the author avatar URL at creation.             |
+| `createdAt`     | `Timestamp` (optional) | The timestamp when the post was created.                   |
+| `updatedAt`     | `Timestamp` (optional) | The timestamp when the post was last updated.              |
+
 ## Firebase Storage
 
 ### `profile-photos/{uid}/avatar.{ext}`

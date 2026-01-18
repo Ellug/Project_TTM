@@ -35,6 +35,18 @@ export type Milestone = {
   updatedAt?: Timestamp;
 };
 
+export type ProjectPost = {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  authorId: string;
+  authorName?: string;
+  authorPhotoURL?: string;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
+
 export type TaskStatus = "Backlog" | "In Progress" | "Review" | "Done";
 export type TaskPriority = "Low" | "Medium" | "High";
 

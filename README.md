@@ -15,6 +15,7 @@
 - 프로필 사진 업로드 (Firebase Storage, 진행률 표시, 5MB 제한)
 - 다크/라이트 테마 전환
 - Discord 웹훅 알림 (프로젝트/마일스톤/태스크 변경)
+- 프로젝트 게시판 (토글 UI, 카테고리 필터 시각 표시, 애니메이션, 태스크로 복사)
 - Firebase 실시간 동기화
 
 ### 기술 스택
@@ -41,6 +42,7 @@ milestones to tasks, and manage execution across board and table views.
 - Profile photo upload (Firebase Storage, progress tracking, 5MB limit)
 - Dark/light theme toggle
 - Discord webhook notifications for project/milestone/task changes
+- Project board with toggle UI, category filter highlighting, animations, and task shortcut
 - Firebase realtime sync
 
 ### Tech Stack
