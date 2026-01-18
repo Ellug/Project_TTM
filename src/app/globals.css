@@ -580,7 +580,6 @@ a {
 .markdown ul li,
 .markdown ol li {
   margin: 0.25rem 0;
-  white-space: pre-wrap;
 }
 
 .markdown ul li::marker {
