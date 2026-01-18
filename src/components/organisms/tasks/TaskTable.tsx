@@ -12,6 +12,7 @@ import clsx from "clsx";
 import type { Task, UserProfile } from "@/lib/types";
 import { Card } from "@/components/atoms/Card";
 import { Chip } from "@/components/atoms/Chip";
+import { LabelChip } from "@/components/atoms/LabelChip";
 import { SelectField } from "@/components/atoms/SelectField";
 
 type TaskTableProps = {
@@ -263,11 +264,14 @@ export const TaskTable = ({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[980px] border-collapse text-left text-sm">
               <thead className="bg-[var(--surface-3)] text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
                 <tr>
                   <th className={clsx(cellBase, "w-16 font-semibold")}>Move</th>
                   <th className={clsx(cellBase, "font-semibold")}>Title</th>
+                  <th className={clsx(cellBase, "w-180 font-semibold")}>
+                    Description
+                  </th>
                   <th className={clsx(cellBase, "w-40 font-semibold")}>
                     Priority
                   </th>
@@ -288,14 +292,16 @@ export const TaskTable = ({
                           cellBase,
                           "text-[0.95rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]"
                         )}
-                        colSpan={5}
+                        colSpan={6}
                       >
                         Scene: {group.scene} ({group.tasks.length})
                       </td>
                     </tr>
-                    {group.tasks.map((task) => {
+                  {group.tasks.map((task) => {
                       const sceneInfo = sceneInfoById.get(task.id);
                       const displayTitle = sceneInfo?.title ?? task.title;
+                      const visibleLabels = task.labels.slice(0, 2);
+                      const extraLabels = Math.max(task.labels.length - 2, 0);
                       const isSelected = selectedTaskId === task.id;
                       const dropBefore =
                         dragOverTaskId === task.id &&
@@ -372,7 +378,20 @@ export const TaskTable = ({
                             </span>
                           </td>
                           <td className={clsx(cellBase, "font-semibold text-[var(--text)]")}>
-                            {displayTitle}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span>{displayTitle}</span>
+                              {visibleLabels.map((label) => (
+                                <LabelChip key={label} label={label} />
+                              ))}
+                              {extraLabels > 0 && <Chip>+{extraLabels}</Chip>}
+                            </div>
+                          </td>
+                          <td className={cellBase}>
+                            <div className="max-h-16 overflow-y-auto pr-2 text-xs text-[var(--muted)]">
+                              <span className="whitespace-pre-wrap break-words">
+                                {task.description || "No description."}
+                              </span>
+                            </div>
                           </td>
                           <td className={cellBase}>
                             <SelectField
