@@ -23,7 +23,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "TTM - Game Dev Task Manager",
   description:
-    "Milestone-driven task cockpit with realtime collaboration, calendar, kanban/table views, and CSV import.",
+    "Milestone-driven task cockpit with realtime collaboration, calendar, kanban/table views, CSV import, and dark/light themes.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <body
         className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} ${jetBrainsMono.variable} antialiased`}
       >

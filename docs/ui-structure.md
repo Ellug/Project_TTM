@@ -7,7 +7,7 @@ connections to reduce future discovery work.
 
 - `src/app/page.tsx`
   - Entry page with AuthPanel and a feature overview.
-  - Uses `Card`, `Panel` atoms for the landing layout.
+  - Uses `Card`, `Panel` atoms for the landing layout and ThemeToggle.
 - `src/app/projects/page.tsx`
   - Project list, project creation, and CSV import.
   - Uses `ProjectCreateForm`, `ProjectImportPanel`, and `ProjectCard`.
@@ -30,6 +30,7 @@ connections to reduce future discovery work.
 
 ### Molecules
 - FormField (label + control pairing)
+- ThemeToggle (dark/light theme selector)
 
 ### Organisms (Roles + Connections)
 - AppShell: Global layout wrapper and route-based sizing.
@@ -56,6 +57,7 @@ connections to reduce future discovery work.
 
 ### Providers
 - AuthProvider (auth state + user profile)
+- ThemeProvider (theme state + persistence)
 
 ## Services (OOP-style)
 - `ProjectService`

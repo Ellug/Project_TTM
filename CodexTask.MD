@@ -4,6 +4,7 @@
 - Strength: Atomic design keeps UI responsibilities clear and reusable.
 - Strength: Service + hook layers keep data access consistent across pages.
 - Strength: Realtime workflows (members, tasks, milestones, CSV formats) feel cohesive.
+- Strength: Theme preferences are centralized, enabling consistent dark/light styling.
 - Risk: Subscribing to the full `users` collection can become expensive at scale.
 - Risk: CSV import creates tasks sequentially, which may be slow for large files.
 - Risk: Permissions are UI-driven; Firestore rules and server validation are required.

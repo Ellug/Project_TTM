@@ -282,7 +282,7 @@ export const TaskTable = ({
               <tbody>
                 {sceneGroups.map((group) => (
                   <Fragment key={group.scene}>
-                    <tr className="bg-[rgba(15,18,25,0.9)]">
+                    <tr className="bg-[var(--table-header-bg)]">
                       <td
                         className={clsx(
                           cellBase,
@@ -316,8 +316,8 @@ export const TaskTable = ({
                           key={task.id}
                           className={clsx(
                             "border-b border-[var(--border)] transition",
-                            canEdit && "hover:bg-[rgba(255,255,255,0.03)]",
-                            isSelected && "bg-[rgba(110,231,255,0.08)]",
+                            canEdit && "hover:bg-[var(--surface-hover)]",
+                            isSelected && "bg-[var(--surface-selected)]",
                             dropBefore && "border-t-2 border-t-[var(--accent)]",
                             dropAfter && "border-b-2 border-b-[var(--accent)]"
                           )}

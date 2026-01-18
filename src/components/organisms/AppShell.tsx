@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Avatar } from "@/components/atoms/Avatar";
+import { ThemeToggle } from "@/components/molecules/ThemeToggle";
 
 export const AppShell = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -17,7 +18,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="relative min-h-screen">
       {showNav && (
-        <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[rgba(8,10,15,0.85)] backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--header-bg)] backdrop-blur">
           <div
             className={`mx-auto flex w-full items-center justify-between px-6 py-4 ${containerClass}`}
           >
@@ -34,6 +35,7 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
             <div className="flex items-center gap-3 text-sm">
+              <ThemeToggle />
               <Link
                 href="/projects"
                 className="rounded-full border border-transparent px-3 py-1 text-[var(--muted)] transition hover:border-[var(--border)] hover:text-[var(--text)]"

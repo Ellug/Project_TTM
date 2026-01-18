@@ -211,7 +211,7 @@ export const ProjectMembersPanel = ({
                     <button
                       key={member.uid}
                       type="button"
-                      className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-[var(--text)] transition hover:bg-[rgba(255,255,255,0.04)]"
+                      className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-[var(--text)] transition hover:bg-[var(--surface-hover)]"
                       onMouseDown={(event) => event.preventDefault()}
                       onClick={() => {
                         setInviteEmail(member.email);

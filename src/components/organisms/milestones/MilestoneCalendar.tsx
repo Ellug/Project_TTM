@@ -189,10 +189,10 @@ export const MilestoneCalendar = ({
                     ? "text-[var(--text)]"
                     : "text-[var(--muted)] opacity-60",
                   hasMilestones
-                    ? "border-[rgba(110,231,255,0.45)] bg-[rgba(110,231,255,0.12)] shadow-[inset_0_0_0_1px_rgba(110,231,255,0.12)]"
+                    ? "border-[var(--accent-border-soft)] bg-[var(--accent-fill-strong)] shadow-[inset_0_0_0_1px_var(--accent-fill-strong)]"
                     : "border-[var(--border)] bg-[var(--surface-3)]",
                   hasMilestones ? "cursor-pointer" : "cursor-default",
-                  isToday && "ring-1 ring-[rgba(110,231,255,0.5)]"
+                  isToday && "ring-1 ring-[var(--accent-border)]"
                 )}
                 onClick={() => {
                   if (!hasMilestones) return;
@@ -210,7 +210,7 @@ export const MilestoneCalendar = ({
               </button>
 
               {hasMilestones && (
-                <div className="absolute left-1/2 top-full z-10 mt-2 w-56 -translate-x-1/2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 text-xs text-[var(--text)] opacity-0 shadow-xl transition group-hover:opacity-100">
+                <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-56 -translate-x-1/2 rounded-xl border border-[var(--border)] bg-[var(--surface-2)] p-3 text-xs text-[var(--text)] opacity-0 shadow-xl transition group-hover:pointer-events-auto group-hover:opacity-100">
                   <div className="text-[0.65rem] uppercase tracking-[0.2em] text-[var(--muted)]">
                     Due milestones
                   </div>

@@ -39,7 +39,7 @@ export default function ProfilePage() {
 
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="relative overflow-hidden p-6 animate-rise-in">
-            <div className="absolute -right-8 -top-12 h-40 w-40 rounded-full bg-[rgba(110,231,255,0.2)] blur-3xl" />
+            <div className="absolute -right-8 -top-12 h-40 w-40 rounded-full bg-[var(--accent-glow)] blur-3xl" />
             <div className="relative grid gap-5">
               <div className="flex items-center gap-4">
                 <Avatar

@@ -16,10 +16,119 @@
   --danger: #ff7a7a;
   --shadow: 0 22px 60px rgba(2, 4, 12, 0.55);
   --ring: rgba(110, 231, 255, 0.35);
+  --accent-focus: rgba(110, 231, 255, 0.6);
+  --accent-border: rgba(110, 231, 255, 0.5);
+  --accent-border-soft: rgba(110, 231, 255, 0.45);
+  --accent-border-strong: rgba(110, 231, 255, 0.75);
+  --accent-outline: rgba(110, 231, 255, 0.25);
+  --accent-drop: rgba(110, 231, 255, 0.7);
+  --accent-dash: rgba(110, 231, 255, 0.65);
+  --accent-fill: rgba(110, 231, 255, 0.08);
+  --accent-fill-strong: rgba(110, 231, 255, 0.12);
+  --primary-gradient-start: rgba(110, 231, 255, 0.25);
+  --primary-gradient-end: rgba(155, 139, 255, 0.2);
+  --primary-shadow: 0 10px 30px rgba(79, 212, 255, 0.15);
+  --primary-shadow-hover: 0 16px 36px rgba(79, 212, 255, 0.2);
+  --task-card-shadow: 0 14px 28px rgba(4, 8, 18, 0.5);
+  --task-card-shadow-strong: 0 18px 36px rgba(4, 8, 18, 0.6);
+  --header-bg: rgba(8, 10, 15, 0.85);
+  --surface-hover: rgba(255, 255, 255, 0.04);
+  --surface-selected: rgba(110, 231, 255, 0.08);
+  --task-panel-bg: rgba(15, 18, 25, 0.98);
+  --task-overlay: rgba(5, 8, 14, 0.6);
+  --table-header-bg: rgba(15, 18, 25, 0.9);
+  --bg-glow-1: rgba(110, 231, 255, 0.2);
+  --bg-glow-2: rgba(155, 139, 255, 0.18);
+  --bg-glow-3: rgba(59, 130, 246, 0.08);
+  --body-overlay-1: rgba(255, 255, 255, 0.03);
+  --body-overlay-2: rgba(255, 255, 255, 0.02);
+  --placeholder: rgba(154, 166, 191, 0.7);
+  --markdown-panel-bg: rgba(14, 18, 28, 0.95);
+  --markdown-panel-border: rgba(110, 231, 255, 0.25);
+  --markdown-panel-outline: rgba(110, 231, 255, 0.08);
+  --markdown-panel-shadow: 0 16px 32px rgba(3, 6, 16, 0.55);
+  --markdown-input-bg: rgba(8, 10, 16, 0.9);
+  --markdown-input-border: rgba(110, 231, 255, 0.35);
+  --markdown-bg: rgba(8, 10, 16, 0.78);
+  --markdown-border: rgba(110, 231, 255, 0.28);
+  --markdown-shadow: 0 10px 24px rgba(2, 4, 12, 0.5);
+  --markdown-pre-bg: rgba(10, 12, 20, 0.7);
+  --markdown-text: rgba(245, 247, 255, 0.9);
+  --markdown-strong: #ffffff;
+  --markdown-accent-1: rgba(110, 231, 255, 0.12);
+  --markdown-accent-2: rgba(155, 139, 255, 0.08);
+  --markdown-code-bg: rgba(110, 231, 255, 0.08);
+  --markdown-blockquote-bg: rgba(110, 231, 255, 0.08);
+  --markdown-th-bg: rgba(110, 231, 255, 0.08);
+  --accent-glow: rgba(110, 231, 255, 0.2);
   --task-panel-width: 840px;
   --app-header-height: 72px;
   --markdown-title-scale: 1.45;
   color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #dfe5ee;
+  --surface: #e6ebf3;
+  --surface-2: #d9e0ec;
+  --surface-3: #d0d9e7;
+  --border: #b7c3d8;
+  --text: #1c2233;
+  --muted: #5b667a;
+  --accent: #0ea5e9;
+  --accent-strong: #0284c7;
+  --accent-2: #4c6fff;
+  --success: #1fbe6b;
+  --warning: #d39a2f;
+  --danger: #e45757;
+  --shadow: 0 18px 40px rgba(20, 30, 50, 0.12);
+  --ring: rgba(14, 165, 233, 0.25);
+  --accent-focus: rgba(14, 165, 233, 0.5);
+  --accent-border: rgba(14, 165, 233, 0.45);
+  --accent-border-soft: rgba(14, 165, 233, 0.4);
+  --accent-border-strong: rgba(14, 165, 233, 0.6);
+  --accent-outline: rgba(14, 165, 233, 0.2);
+  --accent-drop: rgba(14, 165, 233, 0.6);
+  --accent-dash: rgba(14, 165, 233, 0.45);
+  --accent-fill: rgba(14, 165, 233, 0.08);
+  --accent-fill-strong: rgba(14, 165, 233, 0.12);
+  --primary-gradient-start: rgba(14, 165, 233, 0.16);
+  --primary-gradient-end: rgba(76, 111, 255, 0.12);
+  --primary-shadow: 0 12px 24px rgba(14, 165, 233, 0.18);
+  --primary-shadow-hover: 0 16px 30px rgba(14, 165, 233, 0.22);
+  --task-card-shadow: 0 12px 20px rgba(21, 32, 56, 0.18);
+  --task-card-shadow-strong: 0 16px 26px rgba(21, 32, 56, 0.22);
+  --header-bg: rgba(220, 227, 238, 0.94);
+  --surface-hover: rgba(13, 19, 36, 0.06);
+  --surface-selected: rgba(14, 165, 233, 0.14);
+  --task-panel-bg: rgba(226, 232, 242, 0.98);
+  --task-overlay: rgba(15, 18, 25, 0.2);
+  --table-header-bg: rgba(210, 219, 232, 0.92);
+  --bg-glow-1: rgba(14, 165, 233, 0.09);
+  --bg-glow-2: rgba(76, 111, 255, 0.06);
+  --bg-glow-3: rgba(37, 99, 235, 0.04);
+  --body-overlay-1: rgba(8, 12, 24, 0.08);
+  --body-overlay-2: rgba(8, 12, 24, 0.07);
+  --placeholder: rgba(92, 104, 128, 0.6);
+  --markdown-panel-bg: rgba(224, 231, 242, 0.96);
+  --markdown-panel-border: rgba(14, 165, 233, 0.22);
+  --markdown-panel-outline: rgba(14, 165, 233, 0.08);
+  --markdown-panel-shadow: 0 14px 24px rgba(20, 30, 50, 0.12);
+  --markdown-input-bg: rgba(232, 238, 246, 0.95);
+  --markdown-input-border: rgba(14, 165, 233, 0.3);
+  --markdown-bg: rgba(234, 239, 247, 0.92);
+  --markdown-border: rgba(14, 165, 233, 0.22);
+  --markdown-shadow: 0 10px 20px rgba(20, 30, 50, 0.12);
+  --markdown-pre-bg: rgba(218, 225, 238, 0.9);
+  --markdown-text: rgba(28, 34, 51, 0.88);
+  --markdown-strong: #111827;
+  --markdown-accent-1: rgba(14, 165, 233, 0.12);
+  --markdown-accent-2: rgba(76, 111, 255, 0.08);
+  --markdown-code-bg: rgba(14, 165, 233, 0.1);
+  --markdown-blockquote-bg: rgba(14, 165, 233, 0.08);
+  --markdown-th-bg: rgba(14, 165, 233, 0.08);
+  --accent-glow: rgba(14, 165, 233, 0.12);
+  color-scheme: light;
 }
 
 @theme inline {
@@ -43,9 +152,9 @@
 body {
   min-height: 100vh;
   background:
-    radial-gradient(1200px 600px at 80% -20%, rgba(110, 231, 255, 0.2), transparent 60%),
-    radial-gradient(900px 500px at 10% 10%, rgba(155, 139, 255, 0.18), transparent 55%),
-    radial-gradient(900px 600px at 100% 40%, rgba(59, 130, 246, 0.08), transparent 65%),
+    radial-gradient(1200px 600px at 80% -20%, var(--bg-glow-1), transparent 60%),
+    radial-gradient(900px 500px at 10% 10%, var(--bg-glow-2), transparent 55%),
+    radial-gradient(900px 600px at 100% 40%, var(--bg-glow-3), transparent 65%),
     var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -56,8 +165,8 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(255, 255, 255, 0.03), transparent 35%),
-    linear-gradient(300deg, rgba(255, 255, 255, 0.02), transparent 40%);
+    linear-gradient(120deg, var(--body-overlay-1), transparent 35%),
+    linear-gradient(300deg, var(--body-overlay-2), transparent 40%);
   opacity: 0.6;
   pointer-events: none;
   z-index: 0;
@@ -85,12 +194,12 @@ a {
 
 .input-field:focus {
   outline: none;
-  border-color: rgba(110, 231, 255, 0.6);
+  border-color: var(--accent-focus);
   box-shadow: 0 0 0 3px var(--ring);
 }
 
 .input-field::placeholder {
-  color: rgba(154, 166, 191, 0.7);
+  color: var(--placeholder);
 }
 
 .btn-primary,
@@ -109,15 +218,19 @@ a {
 }
 
 .btn-primary {
-  border: 1px solid rgba(110, 231, 255, 0.5);
-  background: linear-gradient(135deg, rgba(110, 231, 255, 0.25), rgba(155, 139, 255, 0.2));
+  border: 1px solid var(--accent-border);
+  background: linear-gradient(
+    135deg,
+    var(--primary-gradient-start),
+    var(--primary-gradient-end)
+  );
   color: var(--text);
-  box-shadow: 0 10px 30px rgba(79, 212, 255, 0.15);
+  box-shadow: var(--primary-shadow);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 36px rgba(79, 212, 255, 0.2);
+  box-shadow: var(--primary-shadow-hover);
 }
 
 .btn-primary:disabled,
@@ -136,7 +249,7 @@ a {
 }
 
 .btn-secondary:hover {
-  border-color: rgba(110, 231, 255, 0.5);
+  border-color: var(--accent-border);
   color: var(--text);
 }
 
@@ -177,7 +290,7 @@ a {
 }
 
 .glow {
-  box-shadow: 0 0 40px rgba(110, 231, 255, 0.08);
+  box-shadow: 0 0 40px var(--accent-fill);
 }
 
 .task-layout {
@@ -201,7 +314,7 @@ a {
   transform: translateX(-100%);
   transition: transform 0.35s ease;
   border-right: 1px solid var(--border);
-  background: rgba(15, 18, 25, 0.98);
+  background: var(--task-panel-bg);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
   z-index: 30;
@@ -223,7 +336,7 @@ a {
 .task-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 8, 14, 0.6);
+  background: var(--task-overlay);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -247,14 +360,14 @@ a {
 
 .task-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(110, 231, 255, 0.45);
-  box-shadow: 0 14px 28px rgba(4, 8, 18, 0.5);
+  border-color: var(--accent-border-soft);
+  box-shadow: var(--task-card-shadow);
 }
 
 .task-card-selected {
-  border-color: rgba(110, 231, 255, 0.75);
-  box-shadow: 0 0 0 1px rgba(110, 231, 255, 0.25),
-    0 18px 36px rgba(4, 8, 18, 0.6);
+  border-color: var(--accent-border-strong);
+  box-shadow: 0 0 0 1px var(--accent-outline),
+    var(--task-card-shadow-strong);
 }
 
 .task-card:focus-visible {
@@ -263,11 +376,11 @@ a {
 }
 
 .task-card-drop-before {
-  box-shadow: inset 0 3px 0 rgba(110, 231, 255, 0.7);
+  box-shadow: inset 0 3px 0 var(--accent-drop);
 }
 
 .task-card-drop-after {
-  box-shadow: inset 0 -3px 0 rgba(110, 231, 255, 0.7);
+  box-shadow: inset 0 -3px 0 var(--accent-drop);
 }
 
 .task-column {
@@ -280,8 +393,8 @@ a {
 }
 
 .task-column-drop .task-column-list {
-  border: 1px dashed rgba(110, 231, 255, 0.65);
-  background: rgba(110, 231, 255, 0.08);
+  border: 1px dashed var(--accent-dash);
+  background: var(--accent-fill);
 }
 
 @keyframes fade-in {
@@ -315,10 +428,10 @@ a {
 }
 
 .markdown-panel {
-  border-color: rgba(110, 231, 255, 0.25);
-  background: rgba(14, 18, 28, 0.95);
-  box-shadow: inset 0 0 0 1px rgba(110, 231, 255, 0.08),
-    0 16px 32px rgba(3, 6, 16, 0.55);
+  border-color: var(--markdown-panel-border);
+  background: var(--markdown-panel-bg);
+  box-shadow: inset 0 0 0 1px var(--markdown-panel-outline),
+    var(--markdown-panel-shadow);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -326,22 +439,22 @@ a {
 
 .markdown-input {
   min-height: 260px;
-  background: rgba(8, 10, 16, 0.9);
-  border-color: rgba(110, 231, 255, 0.35);
+  background: var(--markdown-input-bg);
+  border-color: var(--markdown-input-border);
   font-family: var(--font-mono);
   flex: 1;
 }
 
 .markdown {
   border-radius: 14px;
-  border: 1px solid rgba(110, 231, 255, 0.28);
+  border: 1px solid var(--markdown-border);
   border-left: 3px solid var(--accent);
   background:
-    linear-gradient(140deg, rgba(110, 231, 255, 0.12), rgba(155, 139, 255, 0.08)),
-    rgba(8, 10, 16, 0.78);
+    linear-gradient(140deg, var(--markdown-accent-1), var(--markdown-accent-2)),
+    var(--markdown-bg);
   padding: 0.9rem 1rem;
-  box-shadow: inset 0 0 0 1px rgba(110, 231, 255, 0.08),
-    0 10px 24px rgba(2, 4, 12, 0.5);
+  box-shadow: inset 0 0 0 1px var(--markdown-panel-outline),
+    var(--markdown-shadow);
   min-height: 240px;
   flex: 1;
 }
@@ -370,11 +483,11 @@ a {
 
 .markdown p {
   margin: 0.4rem 0;
-  color: rgba(245, 247, 255, 0.9);
+  color: var(--markdown-text);
 }
 
 .markdown strong {
-  color: #ffffff;
+  color: var(--markdown-strong);
   font-weight: 700;
 }
 
@@ -421,19 +534,19 @@ a {
   height: 1rem;
   margin-top: 0.15rem;
   accent-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(110, 231, 255, 0.25);
+  box-shadow: 0 0 0 1px var(--accent-outline);
 }
 
 .markdown code {
   font-family: var(--font-mono);
-  background: rgba(110, 231, 255, 0.08);
+  background: var(--markdown-code-bg);
   padding: 0.1rem 0.3rem;
   border-radius: 6px;
   font-size: 0.85em;
 }
 
 .markdown pre {
-  background: rgba(10, 12, 20, 0.7);
+  background: var(--markdown-pre-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.8rem;
@@ -447,7 +560,7 @@ a {
 
 .markdown blockquote {
   border-left: 3px solid var(--accent);
-  background: rgba(110, 231, 255, 0.08);
+  background: var(--markdown-blockquote-bg);
   padding: 0.6rem 0.8rem;
   border-radius: 10px;
   color: var(--muted);
@@ -472,7 +585,7 @@ a {
 }
 
 .markdown th {
-  background: rgba(110, 231, 255, 0.08);
+  background: var(--markdown-th-bg);
   color: var(--text);
 }
 

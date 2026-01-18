@@ -3,10 +3,14 @@
 import { AuthPanel } from "@/components/organisms/AuthPanel";
 import { Card } from "@/components/atoms/Card";
 import { Panel } from "@/components/atoms/Panel";
+import { ThemeToggle } from "@/components/molecules/ThemeToggle";
 
 export default function Home() {
   return (
     <div className="flex w-full flex-col items-center justify-center p-4">
+      <div className="flex w-full max-w-6xl justify-end">
+        <ThemeToggle />
+      </div>
       {/* Hero Section */}
       <div className="my-12 flex max-w-4xl flex-col items-center text-center animate-rise-in">
         <h1 className="text-5xl font-bold tracking-tight text-[var(--text)] sm:text-6xl">
