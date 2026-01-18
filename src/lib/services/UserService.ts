@@ -6,8 +6,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -18,6 +18,14 @@ import {
   deleteUser as deleteAuthUser,
   type User as FirebaseUser,
 } from "firebase/auth";
+
+let cachedAllUsers: UserProfile[] = [];
+let allUsersUnsubscribe: (() => void) | null = null;
+const allUsersSubscribers = new Set<(users: UserProfile[]) => void>();
+
+const notifyAllUsers = () => {
+  allUsersSubscribers.forEach((listener) => listener(cachedAllUsers));
+};
 
 export class UserService {
   static async fetchProfiles(userIds: string[]): Promise<UserProfile[]> {
@@ -36,6 +44,37 @@ export class UserService {
     const snapshot = await getDocs(userQuery);
     if (snapshot.empty) return null;
     return snapshot.docs[0].data() as UserProfile;
+  }
+
+  static subscribeAllUsers(onUpdate: (users: UserProfile[]) => void) {
+    allUsersSubscribers.add(onUpdate);
+    onUpdate(cachedAllUsers);
+    if (!allUsersUnsubscribe) {
+      const usersRef = collection(db, "users");
+      allUsersUnsubscribe = onSnapshot(usersRef, (snapshot) => {
+        cachedAllUsers = snapshot.docs.map((docSnapshot) => {
+          const data = docSnapshot.data() as UserProfile;
+          return { ...data, uid: data.uid ?? docSnapshot.id };
+        });
+        notifyAllUsers();
+      });
+    }
+    return () => {
+      allUsersSubscribers.delete(onUpdate);
+      if (allUsersSubscribers.size === 0 && allUsersUnsubscribe) {
+        allUsersUnsubscribe();
+        allUsersUnsubscribe = null;
+      }
+    };
+  }
+
+  static async fetchAllUsers(): Promise<UserProfile[]> {
+    const usersRef = collection(db, "users");
+    const snapshot = await getDocs(usersRef);
+    return snapshot.docs.map((docSnapshot) => {
+      const data = docSnapshot.data() as UserProfile;
+      return { ...data, uid: data.uid ?? docSnapshot.id };
+    });
   }
 
   static async updateProfile(
