@@ -94,6 +94,26 @@ export default function MilestoneTasksPage() {
   }, [selectedTaskId]);
 
   useEffect(() => {
+    if (!selectedTaskId) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target || !target.closest(".task-layout")) return;
+      if (target.closest(".task-panel")) return;
+      if (
+        target.closest(
+          ".task-card, .card, .panel, button, a, input, select, textarea, [role='button']"
+        )
+      ) {
+        return;
+      }
+      setSelectedTaskId(null);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () =>
+      document.removeEventListener("pointerdown", handlePointerDown);
+  }, [selectedTaskId]);
+
+  useEffect(() => {
     if (!projectId || !milestoneId || !canEditTasks) return;
     const missingOrderTasks = tasks.filter(
       (task) =>

@@ -11,13 +11,18 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
+import { db, auth, storage } from "@/lib/firebase";
 import type { UserProfile } from "@/lib/types";
 import {
   updateProfile as updateAuthProfile,
   deleteUser as deleteAuthUser,
   type User as FirebaseUser,
 } from "firebase/auth";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 
 let cachedAllUsers: UserProfile[] = [];
 let allUsersUnsubscribe: (() => void) | null = null;
@@ -74,6 +79,59 @@ export class UserService {
     return snapshot.docs.map((docSnapshot) => {
       const data = docSnapshot.data() as UserProfile;
       return { ...data, uid: data.uid ?? docSnapshot.id };
+    });
+  }
+
+  static async uploadProfilePhoto(
+    uid: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<string> {
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      throw new Error("Only JPEG, PNG, GIF, and WEBP images are allowed.");
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new Error("Image must be smaller than 5MB.");
+    }
+
+    // Get file extension
+    const ext = file.name.split(".").pop() || "jpg";
+
+    // Create storage reference
+    const storageRef = ref(storage, `profile-photos/${uid}/avatar.${ext}`);
+
+    // Upload with progress tracking
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          onProgress?.(Math.round(progress));
+        },
+        (error) => reject(error),
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        }
+      );
+    });
+  }
+
+  static async deleteProfilePhoto(uid: string): Promise<void> {
+    const profiles = await UserService.fetchProfiles([uid]);
+    const nickname = profiles[0]?.nickname || "";
+
+    await UserService.updateProfile(uid, {
+      nickname,
+      photoURL: "",
     });
   }
 
