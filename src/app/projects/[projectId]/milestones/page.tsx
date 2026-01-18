@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { AuthGate } from "@/components/organisms/AuthGate";
 import { MilestoneCreateForm } from "@/components/organisms/milestones/MilestoneCreateForm";
+import { MilestoneCalendar } from "@/components/organisms/milestones/MilestoneCalendar";
 import { MilestoneCard } from "@/components/organisms/milestones/MilestoneCard";
 import { ProjectHeader } from "@/components/organisms/projects/ProjectHeader";
 import { ProjectMembersPanel } from "@/components/organisms/projects/ProjectMembersPanel";
@@ -78,6 +79,11 @@ export default function MilestonesPage() {
             isOwner={isOwner}
           />
         </section>
+
+        <MilestoneCalendar
+          projectId={projectId || ""}
+          milestones={milestones}
+        />
 
         <section className="grid gap-4 md:grid-cols-2">
           {milestones.length === 0 ? (
