@@ -53,3 +53,23 @@ export type Task = {
   updatedAt?: Timestamp;
   creatorId: string;
 };
+
+export type CsvFormatColumns = {
+  scene?: string;
+  category?: string;
+  feature?: string;
+  detail?: string;
+  logic?: string;
+  progress?: string;
+  result?: string;
+};
+
+export type CsvFormat = {
+  id: string;
+  name: string;
+  hasHeader: boolean;
+  columns: CsvFormatColumns;
+  ownerId?: string;
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};
