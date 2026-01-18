@@ -61,6 +61,21 @@
   --markdown-blockquote-bg: rgba(110, 231, 255, 0.08);
   --markdown-th-bg: rgba(110, 231, 255, 0.08);
   --accent-glow: rgba(110, 231, 255, 0.2);
+  --label-refactor-bg: rgba(155, 139, 255, 0.18);
+  --label-refactor-border: rgba(155, 139, 255, 0.45);
+  --label-refactor-text: #e7e1ff;
+  --label-fix-bg: rgba(255, 122, 122, 0.16);
+  --label-fix-border: rgba(255, 122, 122, 0.45);
+  --label-fix-text: #ffd7d7;
+  --label-feature-bg: rgba(110, 231, 255, 0.16);
+  --label-feature-border: rgba(110, 231, 255, 0.45);
+  --label-feature-text: #d9f9ff;
+  --label-optimization-bg: rgba(57, 217, 138, 0.16);
+  --label-optimization-border: rgba(57, 217, 138, 0.45);
+  --label-optimization-text: #ccf7e3;
+  --label-docmetation-bg: rgba(242, 201, 76, 0.16);
+  --label-docmetation-border: rgba(242, 201, 76, 0.45);
+  --label-docmetation-text: #fff0c2;
   --task-panel-width: 840px;
   --app-header-height: 72px;
   --markdown-title-scale: 1.45;
@@ -128,6 +143,21 @@
   --markdown-blockquote-bg: rgba(14, 165, 233, 0.08);
   --markdown-th-bg: rgba(14, 165, 233, 0.08);
   --accent-glow: rgba(14, 165, 233, 0.12);
+  --label-refactor-bg: rgba(124, 96, 255, 0.14);
+  --label-refactor-border: rgba(124, 96, 255, 0.45);
+  --label-refactor-text: #3b2fa6;
+  --label-fix-bg: rgba(230, 87, 87, 0.14);
+  --label-fix-border: rgba(230, 87, 87, 0.45);
+  --label-fix-text: #8c2b2b;
+  --label-feature-bg: rgba(14, 165, 233, 0.14);
+  --label-feature-border: rgba(14, 165, 233, 0.45);
+  --label-feature-text: #0b5a85;
+  --label-optimization-bg: rgba(31, 190, 107, 0.14);
+  --label-optimization-border: rgba(31, 190, 107, 0.45);
+  --label-optimization-text: #136345;
+  --label-docmetation-bg: rgba(211, 154, 47, 0.16);
+  --label-docmetation-border: rgba(211, 154, 47, 0.45);
+  --label-docmetation-text: #7a4d13;
   color-scheme: light;
 }
 
@@ -287,6 +317,46 @@ a {
   padding: 0.2rem 0.7rem;
   font-size: 0.75rem;
   color: var(--muted);
+}
+
+.label-chip {
+  --label-bg: var(--surface-3);
+  --label-border: var(--border);
+  --label-text: var(--text);
+  border-color: var(--label-border);
+  background: var(--label-bg);
+  color: var(--label-text);
+  font-weight: 600;
+}
+
+.label-chip[data-label="Refactoring"] {
+  --label-bg: var(--label-refactor-bg);
+  --label-border: var(--label-refactor-border);
+  --label-text: var(--label-refactor-text);
+}
+
+.label-chip[data-label="Fix"] {
+  --label-bg: var(--label-fix-bg);
+  --label-border: var(--label-fix-border);
+  --label-text: var(--label-fix-text);
+}
+
+.label-chip[data-label="Feature"] {
+  --label-bg: var(--label-feature-bg);
+  --label-border: var(--label-feature-border);
+  --label-text: var(--label-feature-text);
+}
+
+.label-chip[data-label="Optimization"] {
+  --label-bg: var(--label-optimization-bg);
+  --label-border: var(--label-optimization-border);
+  --label-text: var(--label-optimization-text);
+}
+
+.label-chip[data-label="Docmetation"] {
+  --label-bg: var(--label-docmetation-bg);
+  --label-border: var(--label-docmetation-border);
+  --label-text: var(--label-docmetation-text);
 }
 
 .glow {

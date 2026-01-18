@@ -5,6 +5,7 @@ import clsx from "clsx";
 import type { Task, UserProfile } from "@/lib/types";
 import { Avatar } from "@/components/atoms/Avatar";
 import { Chip } from "@/components/atoms/Chip";
+import { LabelChip } from "@/components/atoms/LabelChip";
 import { toDateString } from "@/lib/utils";
 
 type TaskCardProps = {
@@ -172,7 +173,7 @@ export const TaskCard = ({
         {task.labels.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {visibleLabels.map((label) => (
-              <Chip key={label}>{label}</Chip>
+              <LabelChip key={label} label={label} />
             ))}
             {extraLabels > 0 && <Chip>+{extraLabels}</Chip>}
           </div>

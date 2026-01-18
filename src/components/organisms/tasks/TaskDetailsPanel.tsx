@@ -13,7 +13,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import clsx from "clsx";
-import { taskPriorities, taskStatuses } from "@/lib/constants";
+import { taskLabels, taskPriorities, taskStatuses, type TaskLabel } from "@/lib/constants";
 import type { Task, UserProfile } from "@/lib/types";
 import { Avatar } from "@/components/atoms/Avatar";
 import { Button } from "@/components/atoms/Button";
@@ -180,6 +180,13 @@ const toggleCheckboxLine = (
   return lines.join("\n");
 };
 
+const resolveTaskLabel = (labels: string[]) => {
+  const match = labels.find((label) =>
+    taskLabels.includes(label as TaskLabel)
+  );
+  return match ?? "";
+};
+
 type TaskDetailsPanelProps = {
   task: Task | null;
   members: UserProfile[];
@@ -198,8 +205,8 @@ export const TaskDetailsPanel = ({
   onClose,
 }: TaskDetailsPanelProps) => {
   const [title, setTitle] = useState(task?.title ?? "");
-  const [labelsInput, setLabelsInput] = useState(
-    task?.labels.join(", ") ?? ""
+  const [selectedLabel, setSelectedLabel] = useState(() =>
+    resolveTaskLabel(task?.labels ?? [])
   );
   const [description, setDescription] = useState(task?.description ?? "");
   const [detailsMode, setDetailsMode] = useState<"preview" | "edit">(
@@ -220,7 +227,7 @@ export const TaskDetailsPanel = ({
     if (previousTaskId.current === task.id) return;
     previousTaskId.current = task.id;
     setTitle(task.title);
-    setLabelsInput(task.labels.join(", "));
+    setSelectedLabel(resolveTaskLabel(task.labels));
     setDescription(task.description);
     setDetailsMode("preview");
   }, [task]);
@@ -257,17 +264,15 @@ export const TaskDetailsPanel = ({
     }
   };
 
-  const handleLabelsCommit = async () => {
+  const handleLabelChange = async (nextLabel: string) => {
     if (!task || !canEdit) return;
-    const labels = labelsInput
-      .split(",")
-      .map((label) => label.trim())
-      .filter(Boolean);
-    const uniqueLabels = Array.from(new Set(labels));
-    setLabelsInput(uniqueLabels.join(", "));
-    if (uniqueLabels.join("|") !== task.labels.join("|")) {
-      await onUpdate(task.id, { labels: uniqueLabels });
+    const normalized = nextLabel ? [nextLabel] : [];
+    const currentLabel = resolveTaskLabel(task.labels);
+    if (currentLabel === nextLabel && task.labels.length <= 1) {
+      return;
     }
+    setSelectedLabel(nextLabel);
+    await onUpdate(task.id, { labels: normalized });
   };
 
   const handleToggleAssignee = async (uid: string) => {
@@ -444,14 +449,19 @@ export const TaskDetailsPanel = ({
               label="Labels"
               labelClassName="text-xs uppercase tracking-[0.2em] text-[var(--muted)]"
             >
-              <InputField
+              <SelectField
                 className="text-sm"
-                value={labelsInput}
-                onChange={(event) => setLabelsInput(event.target.value)}
-                onBlur={handleLabelsCommit}
-                placeholder="combat, ui, fx"
-                readOnly={!canEdit}
-              />
+                value={selectedLabel}
+                onChange={(event) => handleLabelChange(event.target.value)}
+                disabled={!canEdit}
+              >
+                <option value="">None</option>
+                {taskLabels.map((label) => (
+                  <option key={label} value={label}>
+                    {label}
+                  </option>
+                ))}
+              </SelectField>
             </FormField>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--muted)]">
