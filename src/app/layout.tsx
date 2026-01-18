@@ -21,8 +21,9 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TTM - Team Task Manager",
-  description: "Task cockpit for game development teams.",
+  title: "TTM - Game Dev Task Manager",
+  description:
+    "Milestone-driven task cockpit with realtime collaboration, calendar, kanban/table views, and CSV import.",
 };
 
 export default function RootLayout({
