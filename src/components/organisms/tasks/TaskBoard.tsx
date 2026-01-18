@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type DragEvent } from "react";
+import { useMemo, useState, type DragEvent, type ReactNode } from "react";
 import clsx from "clsx";
 import type { Task, UserProfile } from "@/lib/types";
 import { TaskCard } from "@/components/organisms/tasks/TaskCard";
@@ -31,6 +31,7 @@ type TaskBoardProps = {
   canEdit: boolean;
   onSelect: (taskId: string) => void;
   onUpdate: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  headerActions?: ReactNode;
 };
 
 export const TaskBoard = ({
@@ -42,6 +43,7 @@ export const TaskBoard = ({
   canEdit,
   onSelect,
   onUpdate,
+  headerActions,
 }: TaskBoardProps) => {
   const [dragOverStatus, setDragOverStatus] = useState<Task["status"] | null>(
     null
@@ -239,12 +241,15 @@ export const TaskBoard = ({
   return (
     <section className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--muted)]">
-        <span>{tasks.length} tasks matched</span>
-        {selectedTaskTitle ? (
-          <Chip>Editing: {selectedTaskTitle}</Chip>
-        ) : (
-          <span>Click a task to open details.</span>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <span>{tasks.length} tasks matched</span>
+          {selectedTaskTitle ? (
+            <Chip>Editing: {selectedTaskTitle}</Chip>
+          ) : (
+            <span>Click a task to open details.</span>
+          )}
+        </div>
+        {headerActions && <div className="flex items-center">{headerActions}</div>}
       </div>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {statusOptions.map((status, index) => (

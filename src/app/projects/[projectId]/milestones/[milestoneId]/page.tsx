@@ -9,6 +9,8 @@ import { MilestoneHeader } from "@/components/organisms/milestones/MilestoneHead
 import { TaskBoard } from "@/components/organisms/tasks/TaskBoard";
 import { TaskCreateForm } from "@/components/organisms/tasks/TaskCreateForm";
 import { TaskFilters } from "@/components/organisms/tasks/TaskFilters";
+import { TaskTable } from "@/components/organisms/tasks/TaskTable";
+import { Button } from "@/components/atoms/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { taskPriorities, taskStatuses } from "@/lib/constants";
 import { useMembers } from "@/lib/hooks/useMembers";
@@ -45,6 +47,7 @@ export default function MilestoneTasksPage() {
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [priorityFilter, setPriorityFilter] = useState<string>("All");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("All");
+  const [viewMode, setViewMode] = useState<"board" | "table">("board");
 
   const handleCreateTask = async (data: {
     title: string;
@@ -135,6 +138,18 @@ export default function MilestoneTasksPage() {
   }, [tasks, search, statusFilter, priorityFilter, assigneeFilter]);
 
   const isPanelOpen = Boolean(selectedTask);
+  const viewToggleLabel = viewMode === "board" ? "Excel view" : "Board view";
+  const viewToggle = (
+    <Button
+      variant="secondary"
+      className="text-xs uppercase tracking-[0.2em]"
+      onClick={() =>
+        setViewMode((prev) => (prev === "board" ? "table" : "board"))
+      }
+    >
+      {viewToggleLabel}
+    </Button>
+  );
 
   return (
     <AuthGate>
@@ -194,18 +209,36 @@ export default function MilestoneTasksPage() {
             />
           </section>
 
-          <TaskBoard
-            tasks={filteredTasks}
-            members={members}
-            statusOptions={taskStatuses}
-            selectedTaskId={selectedTaskId}
-            selectedTaskTitle={selectedTask?.title}
-            canEdit={canEditTasks}
-            onSelect={(taskId) =>
-              setSelectedTaskId((prev) => (prev === taskId ? null : taskId))
-            }
-            onUpdate={handleUpdateTask}
-          />
+          {viewMode === "table" ? (
+            <TaskTable
+              tasks={filteredTasks}
+              members={members}
+              statusOptions={taskStatuses}
+              priorityOptions={taskPriorities}
+              selectedTaskId={selectedTaskId}
+              selectedTaskTitle={selectedTask?.title}
+              canEdit={canEditTasks}
+              onSelect={(taskId) =>
+                setSelectedTaskId((prev) => (prev === taskId ? null : taskId))
+              }
+              onUpdate={handleUpdateTask}
+              headerActions={viewToggle}
+            />
+          ) : (
+            <TaskBoard
+              tasks={filteredTasks}
+              members={members}
+              statusOptions={taskStatuses}
+              selectedTaskId={selectedTaskId}
+              selectedTaskTitle={selectedTask?.title}
+              canEdit={canEditTasks}
+              onSelect={(taskId) =>
+                setSelectedTaskId((prev) => (prev === taskId ? null : taskId))
+              }
+              onUpdate={handleUpdateTask}
+              headerActions={viewToggle}
+            />
+          )}
         </div>
       </div>
     </AuthGate>
