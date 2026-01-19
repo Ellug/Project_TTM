@@ -674,6 +674,13 @@ a {
   font-weight: 700;
 }
 
+[data-theme="light"] .md-danger {
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  background: rgba(254, 202, 202, 0.7);
+  color: #b91c1c;
+  box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.15);
+}
+
 @media (max-width: 1024px) {
   :root {
     --task-panel-width: 100%;
