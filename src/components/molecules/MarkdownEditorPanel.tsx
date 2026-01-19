@@ -233,7 +233,7 @@ export const MarkdownPreview = ({
   };
 
   return (
-    <div className={clsx("markdown text-sm text-[var(--text)]", className)}>
+    <div className={clsx( "markdown text-sm text-[var(--text)] max-h-[500px] overflow-y-auto", className)}>
       <ReactMarkdown
         remarkPlugins={[
           [remarkGfm, { singleTilde: false }],

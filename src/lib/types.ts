@@ -85,3 +85,20 @@ export type CsvFormat = {
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 };
+
+export type ScrumEntry = {
+  id: string;
+  content: string;
+  checked: boolean;
+};
+
+export type Scrum = {
+  id: string;
+  date: string;
+  userId: string;
+  userName?: string;
+  userPhotoURL?: string;
+  items: ScrumEntry[];
+  createdAt?: Timestamp;
+  updatedAt?: Timestamp;
+};

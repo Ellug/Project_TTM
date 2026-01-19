@@ -22,6 +22,9 @@ connections to reduce future discovery work.
   - Milestone task workspace with filters, board/table views, and details panel.
   - Uses `MilestoneHeader`, `TaskCreateForm`, `TaskFilters`, `TaskBoard`,
     `TaskTable`, and `TaskDetailsPanel`.
+- `src/app/projects/[projectId]/milestones/scrum/page.tsx`
+  - Daily scrum tracking page with calendar and team member boards.
+  - Uses `ScrumCalendar`, `ScrumBoard`, `ScrumItemInput`, and `AuthGate`.
 
 ## Components (Atomic Design)
 
@@ -64,6 +67,9 @@ connections to reduce future discovery work.
   other milestones.
 - ProfileEditForm: Profile photo upload (with progress), nickname editing,
   and email display (uses `UserService.uploadProfilePhoto`).
+- ScrumCalendar: Month view with scrum entry counts and date selection.
+- ScrumBoard: Team member panels with scrum items, checkboxes, and add/edit/delete.
+- ScrumItemInput: Individual scrum item with checkbox, editable content, and delete.
 
 ### Providers
 - AuthProvider (auth state + user profile)
@@ -79,6 +85,8 @@ connections to reduce future discovery work.
   - Subscribe tasks, create/update/delete, delete tasks for milestone.
 - `ProjectPostService`
   - Subscribe/create/update/delete project board posts.
+- `ScrumService`
+  - Subscribe/create/update/delete daily scrum entries.
 - `UserService`
   - Fetch profiles, invite lookup, and realtime user directory subscription.
   - Profile photo upload/delete via Firebase Storage.
@@ -99,6 +107,7 @@ connections to reduce future discovery work.
 - useMilestones
 - useMilestone
 - useProjectPosts
+- useScrums
 - useTasks
 - useMembers
 

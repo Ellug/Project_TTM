@@ -8,6 +8,7 @@ import { MilestoneCard } from "@/components/organisms/milestones/MilestoneCard";
 import { ProjectBoard } from "@/components/organisms/projects/ProjectBoard";
 import { ProjectHeader } from "@/components/organisms/projects/ProjectHeader";
 import { ProjectMembersPanel } from "@/components/organisms/projects/ProjectMembersPanel";
+import { ButtonLink } from "@/components/atoms/ButtonLink";
 import { Panel } from "@/components/atoms/Panel";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { milestoneStatuses } from "@/lib/constants";
@@ -78,6 +79,16 @@ export default function MilestonesPage() {
           onSave={handleSaveProject}
           onDelete={handleDeleteProject}
         />
+
+        <div className="flex justify-end">
+          <ButtonLink
+            href={`/projects/${projectId}/milestones/scrum`}
+            variant="primary"
+            className="text-xs uppercase tracking-[0.2em]"
+          >
+            Daily Scrum
+          </ButtonLink>
+        </div>
 
         <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
           <MilestoneCreateForm

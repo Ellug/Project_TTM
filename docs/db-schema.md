@@ -106,6 +106,29 @@ Stores project board posts (announcements, ideas, meeting notes, bug reports).
 | `createdAt`     | `Timestamp` (optional) | The timestamp when the post was created.                   |
 | `updatedAt`     | `Timestamp` (optional) | The timestamp when the post was last updated.              |
 
+##### `projects/{projectId}/scrums`
+
+Stores daily scrum entries for team members.
+
+| Field           | Type                   | Description                                                |
+|-----------------|------------------------|------------------------------------------------------------|
+| `id`            | `string`               | The scrum's unique ID.                                     |
+| `date`          | `string`               | Date in YYYY-MM-DD format.                                 |
+| `userId`        | `string`               | The UID of the user who owns this scrum entry.             |
+| `userName`      | `string` (optional)    | Snapshot of the user name at creation.                     |
+| `userPhotoURL`  | `string` (optional)    | Snapshot of the user avatar URL at creation.               |
+| `items`         | `array`                | Array of scrum items (see below).                          |
+| `createdAt`     | `Timestamp` (optional) | The timestamp when the scrum was created.                  |
+| `updatedAt`     | `Timestamp` (optional) | The timestamp when the scrum was last updated.             |
+
+Scrum item structure (within `items` array):
+
+| Field     | Type      | Description                        |
+|-----------|-----------|------------------------------------|
+| `id`      | `string`  | Unique item ID.                    |
+| `content` | `string`  | Text content of the item.          |
+| `checked` | `boolean` | Whether the item is checked/done.  |
+
 ## Firebase Storage
 
 ### `profile-photos/{uid}/avatar.{ext}`

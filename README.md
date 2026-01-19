@@ -17,6 +17,7 @@
 - 다크/라이트 테마 전환
 - Discord 웹훅 알림 (프로젝트/마일스톤/태스크 변경)
 - 프로젝트 게시판 (토글 UI, 카테고리 필터 시각 표시, 애니메이션, 태스크로 복사)
+- 데일리 스크럼 (달력 기반 날짜 선택, 팀원별 보드, 체크박스 항목 관리)
 - Firebase 실시간 동기화
 
 ### 기술 스택
@@ -25,7 +26,7 @@
 - Tailwind CSS (@theme inline) + next/font
 
 ### 데이터 모델
-`users`, `projects`, `milestones`, `tasks`, `users/{uid}/csvFormats`
+`users`, `projects`, `milestones`, `tasks`, `scrums`, `posts`, `users/{uid}/csvFormats`
 자세한 구조는 `docs/db-schema.md` 참고.
 
 ## English
@@ -45,6 +46,7 @@ milestones to tasks, and manage execution across board and table views.
 - Dark/light theme toggle
 - Discord webhook notifications for project/milestone/task changes
 - Project board with toggle UI, category filter highlighting, animations, and task shortcut
+- Daily scrum (calendar-based date selection, team member boards, checkbox item management)
 - Firebase realtime sync
 
 ### Tech Stack
@@ -53,6 +55,6 @@ milestones to tasks, and manage execution across board and table views.
 - Tailwind CSS (@theme inline) + next/font
 
 ### Data Model
-`users`, `projects`, `milestones`, `tasks`, `users/{uid}/csvFormats`
+`users`, `projects`, `milestones`, `tasks`, `scrums`, `posts`, `users/{uid}/csvFormats`
 See `docs/db-schema.md` for full structure.
 
