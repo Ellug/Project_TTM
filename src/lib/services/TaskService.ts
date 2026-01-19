@@ -135,4 +135,53 @@ export class TaskService {
       tasksSnapshot.docs.map((taskDoc) => deleteDoc(taskDoc.ref))
     );
   }
+
+  static async moveTask(
+    projectId: string,
+    fromMilestoneId: string,
+    toMilestoneId: string,
+    taskId: string,
+    taskData: Omit<Task, "id">
+  ) {
+    // Create task in destination milestone
+    const newTaskRef = await addDoc(
+      collection(
+        db,
+        "projects",
+        projectId,
+        "milestones",
+        toMilestoneId,
+        "tasks"
+      ),
+      {
+        title: taskData.title,
+        description: taskData.description,
+        status: taskData.status,
+        priority: taskData.priority,
+        completed: taskData.completed,
+        assigneeIds: taskData.assigneeIds,
+        labels: taskData.labels,
+        order: Date.now() + Math.random(),
+        dueDate: taskData.dueDate || "",
+        creatorId: taskData.creatorId,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }
+    );
+
+    // Delete task from source milestone
+    await deleteDoc(
+      doc(
+        db,
+        "projects",
+        projectId,
+        "milestones",
+        fromMilestoneId,
+        "tasks",
+        taskId
+      )
+    );
+
+    return newTaskRef;
+  }
 }

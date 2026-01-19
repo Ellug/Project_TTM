@@ -126,6 +126,7 @@ createTask(projectId, milestoneId, {...taskData})
 updateTask(projectId, milestoneId, taskId, updates)
 deleteTask(projectId, milestoneId, taskId)
 deleteTasksForMilestone(projectId, milestoneId)  // Batch delete
+moveTask(projectId, fromMilestoneId, toMilestoneId, taskId, taskData)  // Move between milestones
 ```
 
 **Firestore Path:** `projects/{projectId}/milestones/{milestoneId}/tasks/{taskId}`
@@ -215,13 +216,13 @@ notifyTaskUpdated(userName, taskName, details?)
 - **[MilestoneCard.tsx](src/components/organisms/milestones/MilestoneCard.tsx)** - Milestone card
 - **[MilestoneCalendar.tsx](src/components/organisms/milestones/MilestoneCalendar.tsx)** - Calendar view
 - **[MilestoneCreateForm.tsx](src/components/organisms/milestones/MilestoneCreateForm.tsx)** - Create form
-- **[MilestoneHeader.tsx](src/components/organisms/milestones/MilestoneHeader.tsx)** - Title + actions
+- **[MilestoneHeader.tsx](src/components/organisms/milestones/MilestoneHeader.tsx)** - Title + actions + CSV export
 
 ### Organisms - Tasks
 - **[TaskBoard.tsx](src/components/organisms/tasks/TaskBoard.tsx)** - Kanban board view
 - **[TaskCard.tsx](src/components/organisms/tasks/TaskCard.tsx)** - Individual task card
 - **[TaskCreateForm.tsx](src/components/organisms/tasks/TaskCreateForm.tsx)** - Create task form
-- **[TaskDetailsPanel.tsx](src/components/organisms/tasks/TaskDetailsPanel.tsx)** - Edit drawer (markdown support)
+- **[TaskDetailsPanel.tsx](src/components/organisms/tasks/TaskDetailsPanel.tsx)** - Edit drawer (markdown support, move to other milestones)
 - **[TaskFilters.tsx](src/components/organisms/tasks/TaskFilters.tsx)** - Filter/search controls
 - **[TaskTable.tsx](src/components/organisms/tasks/TaskTable.tsx)** - Excel-style table view
 
@@ -388,6 +389,14 @@ getInitials(name: string) → string
 // Example: "John Doe" → "JD"
 ```
 
+### CSV Export ([utils.ts](src/lib/utils.ts))
+```typescript
+exportTasksToCsv(tasks: Task[], members: UserProfile[], filename: string)
+// Exports tasks sorted by order field to CSV file
+// Columns: title, label, description, priority, assignees, completed, status
+// Uses BOM for Excel UTF-8 compatibility
+```
+
 ### CSV Parsing ([customCsv.ts](src/lib/importers/customCsv.ts))
 ```typescript
 parseCsvWithFormat(csvText: string, format: CsvFormatDefinition)
@@ -530,7 +539,7 @@ await UserService.updateProfile(uid, { nickname, photoURL })
 - [ ] Task templates and recurring tasks
 - [ ] In-app notifications (due soon, mentions, status changes)
 - [ ] Activity log and comments per task
-- [ ] CSV export functionality
+- [x] CSV export functionality (milestone tasks export)
 - [ ] Integrations (Google Sheets, Jira, Trello)
 
 ### UX Improvements

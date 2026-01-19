@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { taskLabels, taskPriorities, taskStatuses, type TaskLabel } from "@/lib/constants";
-import type { Task, UserProfile } from "@/lib/types";
+import type { Milestone, Task, UserProfile } from "@/lib/types";
 import { Avatar } from "@/components/atoms/Avatar";
 import { Button } from "@/components/atoms/Button";
 import { Chip } from "@/components/atoms/Chip";
@@ -23,18 +23,24 @@ const resolveTaskLabel = (labels: string[]) => {
 type TaskDetailsPanelProps = {
   task: Task | null;
   members: UserProfile[];
+  milestones: Milestone[];
+  currentMilestoneId: string;
   canEdit: boolean;
   onUpdate: (taskId: string, updates: Partial<Task>) => Promise<void>;
   onDelete: (taskId: string) => Promise<void>;
+  onMove: (taskId: string, toMilestoneId: string) => Promise<void>;
   onClose: () => void;
 };
 
 export const TaskDetailsPanel = ({
   task,
   members,
+  milestones,
+  currentMilestoneId,
   canEdit,
   onUpdate,
   onDelete,
+  onMove,
   onClose,
 }: TaskDetailsPanelProps) => {
   const [title, setTitle] = useState(task?.title ?? "");
@@ -44,8 +50,15 @@ export const TaskDetailsPanel = ({
   const [description, setDescription] = useState(task?.description ?? "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [moving, setMoving] = useState(false);
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(currentMilestoneId);
 
   const previousTaskId = useRef<string | null>(null);
+
+  const otherMilestones = useMemo(
+    () => milestones.filter((m) => m.id !== currentMilestoneId),
+    [milestones, currentMilestoneId]
+  );
 
   useEffect(() => {
     if (!task) return;
@@ -121,6 +134,25 @@ export const TaskDetailsPanel = ({
     }
   };
 
+  const handleMove = async () => {
+    if (!task || moving || !canEdit || !selectedMilestoneId) return;
+    if (selectedMilestoneId === currentMilestoneId) return;
+    const targetMilestone = milestones.find((m) => m.id === selectedMilestoneId);
+    const confirmed = window.confirm(
+      `Move "${task.title}" to "${targetMilestone?.title || "selected milestone"}"?`
+    );
+    if (!confirmed) return;
+    setMoving(true);
+    try {
+      await onMove(task.id, selectedMilestoneId);
+      onClose();
+    } catch {
+      // Ignore move errors for now.
+    } finally {
+      setMoving(false);
+    }
+  };
+
   if (!task) {
     return (
       <aside className="task-panel" aria-label="Task details">
@@ -162,6 +194,35 @@ export const TaskDetailsPanel = ({
               </Button>
             </div>
           </div>
+
+          {canEdit && otherMilestones.length > 0 && (
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-2">
+              <SelectField
+                className="flex-1 text-sm"
+                value={selectedMilestoneId}
+                onChange={(event) => setSelectedMilestoneId(event.target.value)}
+                disabled={moving}
+              >
+                <option value={currentMilestoneId} disabled>
+                  Move to...
+                </option>
+                {otherMilestones.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.title}
+                  </option>
+                ))}
+              </SelectField>
+              <Button
+                variant="secondary"
+                className="text-[11px] uppercase tracking-[0.2em] whitespace-nowrap"
+                onClick={handleMove}
+                disabled={moving || selectedMilestoneId === currentMilestoneId}
+              >
+                {moving ? "Moving..." : "Move"}
+              </Button>
+            </div>
+          )}
+
           <FormField
             label="Title"
             labelClassName="text-xs uppercase tracking-[0.2em] text-[var(--muted)]"

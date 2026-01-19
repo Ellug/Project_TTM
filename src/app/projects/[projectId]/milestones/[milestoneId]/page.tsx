@@ -15,12 +15,14 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { taskPriorities, taskStatuses } from "@/lib/constants";
 import { useMembers } from "@/lib/hooks/useMembers";
 import { useMilestone } from "@/lib/hooks/useMilestone";
+import { useMilestones } from "@/lib/hooks/useMilestones";
 import { useProject } from "@/lib/hooks/useProject";
 import { useTasks } from "@/lib/hooks/useTasks";
 import { canEditProjectContent, resolveMemberRole } from "@/lib/permissions";
 import { ProjectService } from "@/lib/services/ProjectService";
 import { TaskService } from "@/lib/services/TaskService";
 import { DiscordService } from "@/lib/services/DiscordService";
+import { exportTasksToCsv } from "@/lib/utils";
 import type { Task } from "@/lib/types";
 
 export default function MilestoneTasksPage() {
@@ -36,6 +38,7 @@ export default function MilestoneTasksPage() {
 
   const project = useProject(projectId);
   const milestone = useMilestone(projectId, milestoneId);
+  const milestones = useMilestones(projectId);
   const tasks = useTasks(projectId, milestoneId);
   const members = useMembers(project?.memberIds);
 
@@ -153,6 +156,21 @@ export default function MilestoneTasksPage() {
     void DiscordService.notifyTaskDeleted(userName, taskName);
   };
 
+  const handleMoveTask = async (taskId: string, toMilestoneId: string) => {
+    if (!projectId || !milestoneId || !canEditTasks) return;
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const targetMilestone = milestones.find((m) => m.id === toMilestoneId);
+    const { id, ...taskData } = task;
+    await TaskService.moveTask(projectId, milestoneId, toMilestoneId, taskId, taskData);
+    setSelectedTaskId(null);
+    void DiscordService.notifyTaskUpdated(
+      userName,
+      task.title,
+      `Moved to ${targetMilestone?.title || "another milestone"}`
+    );
+  };
+
   const selectedTask = useMemo(
     () => tasks.find((task) => task.id === selectedTaskId) || null,
     [tasks, selectedTaskId]
@@ -253,8 +271,11 @@ export default function MilestoneTasksPage() {
         <TaskDetailsPanel
           task={selectedTask}
           members={members}
+          milestones={milestones}
+          currentMilestoneId={milestoneId || ""}
           onUpdate={handleUpdateTask}
           onDelete={handleDeleteTask}
+          onMove={handleMoveTask}
           canEdit={canEditTasks}
           onClose={() => setSelectedTaskId(null)}
         />
@@ -289,6 +310,10 @@ export default function MilestoneTasksPage() {
               } else {
                 router.push("/projects");
               }
+            }}
+            onExportCsv={() => {
+              const filename = milestone?.title || "tasks";
+              exportTasksToCsv(tasks, members, filename);
             }}
           />
 

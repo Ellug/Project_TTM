@@ -52,7 +52,7 @@ connections to reduce future discovery work.
   (uses `UserService.subscribeAllUsers`).
 - MilestoneCreateForm: Creates milestones (title, status, due date).
 - MilestoneCard: Milestone summary and edit/delete actions.
-- MilestoneHeader: Milestone details, status edits, and delete actions.
+- MilestoneHeader: Milestone details, status edits, delete actions, and CSV export.
 - MilestoneCalendar: Month view with due date highlights and navigation.
 - TaskCreateForm: Quick task creation for a milestone.
 - TaskFilters: Search, status/priority/assignee filters.
@@ -60,7 +60,8 @@ connections to reduce future discovery work.
 - TaskTable: Excel-style table grouped by Scene (title prefix), drag ordering,
   inline edits for priority/status/assignee.
 - TaskCard: Task summary, drag handle, and quick completion toggle.
-- TaskDetailsPanel: Markdown details, assignees, and task metadata editing.
+- TaskDetailsPanel: Markdown details, assignees, task metadata editing, and move to
+  other milestones.
 - ProfileEditForm: Profile photo upload (with progress), nickname editing,
   and email display (uses `UserService.uploadProfilePhoto`).
 

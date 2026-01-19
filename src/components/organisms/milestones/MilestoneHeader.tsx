@@ -24,6 +24,7 @@ type MilestoneHeaderProps = {
     status: Milestone["status"];
     dueDate: string;
   }) => void;
+  onExportCsv?: () => void;
 };
 
 export const MilestoneHeader = ({
@@ -32,6 +33,7 @@ export const MilestoneHeader = ({
   canEdit,
   onDeleted,
   onUpdated,
+  onExportCsv,
 }: MilestoneHeaderProps) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(milestone?.title ?? "");
@@ -176,6 +178,15 @@ export const MilestoneHeader = ({
           <ButtonLink href="/projects" variant="ghost" className="text-xs sm:text-sm">
             Projects
           </ButtonLink>
+          {onExportCsv && (
+            <Button
+              variant="ghost"
+              className="text-xs uppercase tracking-[0.2em]"
+              onClick={onExportCsv}
+            >
+              Export CSV
+            </Button>
+          )}
           {canEdit && !editing && (
             <Button
               variant="ghost"
