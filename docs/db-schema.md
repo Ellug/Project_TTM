@@ -123,11 +123,15 @@ Stores daily scrum entries for team members.
 
 Scrum item structure (within `items` array):
 
-| Field     | Type      | Description                        |
-|-----------|-----------|------------------------------------|
-| `id`      | `string`  | Unique item ID.                    |
-| `content` | `string`  | Text content of the item.          |
-| `checked` | `boolean` | Whether the item is checked/done.  |
+| Field         | Type                 | Description                                    |
+|---------------|----------------------|------------------------------------------------|
+| `id`          | `string`             | Unique item ID.                                |
+| `type`        | `string`             | Entry type (`text` or `task`).                 |
+| `content`     | `string`             | Text content of the item.                      |
+| `checked`     | `boolean`            | Whether the item is checked/done.              |
+| `milestoneId` | `string` (optional)  | Reference to milestone (when type is `task`).  |
+| `taskId`      | `string` (optional)  | Reference to task (when type is `task`).       |
+| `taskTitle`   | `string` (optional)  | Snapshot of task title (when type is `task`).  |
 
 ## Firebase Storage
 

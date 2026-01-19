@@ -5,6 +5,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   onSnapshot,
   orderBy,
@@ -133,6 +134,24 @@ export class TaskService {
     const tasksSnapshot = await getDocs(tasksRef);
     await Promise.all(
       tasksSnapshot.docs.map((taskDoc) => deleteDoc(taskDoc.ref))
+    );
+  }
+
+  static async fetchTask(
+    projectId: string,
+    milestoneId: string,
+    taskId: string
+  ) {
+    return getDoc(
+      doc(
+        db,
+        "projects",
+        projectId,
+        "milestones",
+        milestoneId,
+        "tasks",
+        taskId
+      )
     );
   }
 

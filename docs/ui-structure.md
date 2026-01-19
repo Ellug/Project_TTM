@@ -68,8 +68,10 @@ connections to reduce future discovery work.
 - ProfileEditForm: Profile photo upload (with progress), nickname editing,
   and email display (uses `UserService.uploadProfilePhoto`).
 - ScrumCalendar: Month view with scrum entry counts and date selection.
-- ScrumBoard: Team member panels with scrum items, checkboxes, and add/edit/delete.
-- ScrumItemInput: Individual scrum item with checkbox, editable content, and delete.
+- ScrumBoard: Team member panels with scrum items, checkboxes, add/edit/delete,
+  and milestone/task selector for adding task references.
+- ScrumItemInput: Individual scrum item with checkbox, editable content, delete,
+  and task link that opens TaskDetailsPanel when clicked.
 
 ### Providers
 - AuthProvider (auth state + user profile)

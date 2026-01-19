@@ -1,35 +1,120 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Avatar } from "@/components/atoms/Avatar";
+import { Button } from "@/components/atoms/Button";
 import { Card } from "@/components/atoms/Card";
 import { Panel } from "@/components/atoms/Panel";
 import { ScrumItemInput } from "./ScrumItemInput";
-import type { Scrum, ScrumEntry, UserProfile } from "@/lib/types";
+import type { Milestone, Scrum, ScrumEntry, Task, UserProfile } from "@/lib/types";
 import { ScrumService } from "@/lib/services/ScrumService";
+import { MilestoneService } from "@/lib/services/MilestoneService";
 
 type ScrumBoardProps = {
   projectId: string;
   selectedDate: string;
   scrums: Scrum[];
+  milestones: Milestone[];
   members: UserProfile[];
   currentUserId?: string;
   currentUserName?: string;
   currentUserPhotoURL?: string;
+  onTaskClick?: (milestoneId: string, taskId: string) => void;
 };
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
+
+type AddMode = "text" | "task";
+
+type TaskOption = Task & {
+  assigneeLabel: string;
+  assigneeSortName: string;
+};
+
+const progressSortOrder: Task["status"][] = [
+  "Backlog",
+  "In Progress",
+  "Review",
+  "Done",
+];
+
+const resolveMemberName = (member?: UserProfile) =>
+  member?.nickname || member?.displayName || member?.email || "User";
+
+const getAssigneeNames = (
+  task: Task,
+  membersById: Map<string, UserProfile>
+) =>
+  task.assigneeIds
+    .map((assigneeId) => resolveMemberName(membersById.get(assigneeId)))
+    .sort((a, b) => a.localeCompare(b));
+
+const formatAssigneeLabel = (assigneeNames: string[]) => {
+  if (assigneeNames.length === 0) return "Unassigned";
+  if (assigneeNames.length === 1) return assigneeNames[0];
+  return `${assigneeNames[0]} +${assigneeNames.length - 1}`;
+};
+
+const getAssigneeRank = (task: Task, currentUserId?: string) => {
+  if (task.assigneeIds.length === 0) return 0;
+  if (currentUserId && task.assigneeIds.includes(currentUserId)) return 1;
+  return 2;
+};
+
+const getProgressRank = (status: Task["status"]) => {
+  const index = progressSortOrder.indexOf(status);
+  return index === -1 ? progressSortOrder.length : index;
+};
+
+const sortTasksForScrum = (
+  tasks: Task[],
+  membersById: Map<string, UserProfile>,
+  currentUserId?: string
+): TaskOption[] =>
+  tasks
+    .map((task) => {
+      const assigneeNames = getAssigneeNames(task, membersById);
+      return {
+        ...task,
+        assigneeLabel: formatAssigneeLabel(assigneeNames),
+        assigneeSortName: assigneeNames[0] ?? "Unassigned",
+      };
+    })
+    .sort((a, b) => {
+      const progressDiff = getProgressRank(a.status) - getProgressRank(b.status);
+      if (progressDiff !== 0) return progressDiff;
+
+      const assigneeDiff =
+        getAssigneeRank(a, currentUserId) - getAssigneeRank(b, currentUserId);
+      if (assigneeDiff !== 0) return assigneeDiff;
+
+      const nameDiff = a.assigneeSortName.localeCompare(b.assigneeSortName);
+      if (nameDiff !== 0) return nameDiff;
+
+      return a.title.localeCompare(b.title);
+    });
 
 export const ScrumBoard = ({
   projectId,
   selectedDate,
   scrums,
+  milestones,
   members,
   currentUserId,
   currentUserName,
   currentUserPhotoURL,
+  onTaskClick,
 }: ScrumBoardProps) => {
   const [newItemTexts, setNewItemTexts] = useState<Record<string, string>>({});
+  const [addModes, setAddModes] = useState<Record<string, AddMode>>({});
+  const [selectedMilestones, setSelectedMilestones] = useState<Record<string, string>>({});
+  const [selectedTasks, setSelectedTasks] = useState<Record<string, string>>({});
+  const [tasksByMilestone, setTasksByMilestone] = useState<Record<string, Task[]>>({});
+  const [loadingTasks, setLoadingTasks] = useState<Record<string, boolean>>({});
+
+  const membersById = useMemo(() => {
+    return new Map(members.map((member) => [member.uid, member]));
+  }, [members]);
 
   const scrumsByUser = useMemo(() => {
     const map = new Map<string, Scrum>();
@@ -41,13 +126,39 @@ export const ScrumBoard = ({
     return map;
   }, [scrums, selectedDate]);
 
-  const handleAddItem = async (userId: string) => {
+  // Load tasks when milestone is selected
+  useEffect(() => {
+    const loadTasks = async (milestoneId: string) => {
+      if (tasksByMilestone[milestoneId] || loadingTasks[milestoneId]) return;
+
+      setLoadingTasks((prev) => ({ ...prev, [milestoneId]: true }));
+      try {
+        const snapshot = await MilestoneService.fetchMilestoneTasks(projectId, milestoneId);
+        const tasks = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Task, "id">),
+        }));
+        setTasksByMilestone((prev) => ({ ...prev, [milestoneId]: tasks }));
+      } finally {
+        setLoadingTasks((prev) => ({ ...prev, [milestoneId]: false }));
+      }
+    };
+
+    Object.values(selectedMilestones).forEach((milestoneId) => {
+      if (milestoneId) {
+        loadTasks(milestoneId);
+      }
+    });
+  }, [selectedMilestones, projectId, tasksByMilestone, loadingTasks]);
+
+  const handleAddTextItem = async (userId: string) => {
     const text = newItemTexts[userId]?.trim();
     if (!text || !currentUserId || userId !== currentUserId) return;
 
     const existingScrum = scrumsByUser.get(userId);
     const newEntry: ScrumEntry = {
       id: generateId(),
+      type: "text",
       content: text,
       checked: false,
     };
@@ -68,6 +179,47 @@ export const ScrumBoard = ({
     }
 
     setNewItemTexts((prev) => ({ ...prev, [userId]: "" }));
+  };
+
+  const handleAddTaskItem = async (userId: string) => {
+    const milestoneId = selectedMilestones[userId];
+    const taskId = selectedTasks[userId];
+    if (!milestoneId || !taskId || !currentUserId || userId !== currentUserId) return;
+
+    const tasks = tasksByMilestone[milestoneId] || [];
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const existingScrum = scrumsByUser.get(userId);
+    const newEntry: ScrumEntry = {
+      id: generateId(),
+      type: "task",
+      content: task.title,
+      checked: task.completed,
+      milestoneId,
+      taskId,
+      taskTitle: task.title,
+    };
+
+    if (existingScrum) {
+      await ScrumService.updateScrumItems(projectId, existingScrum.id, [
+        ...existingScrum.items,
+        newEntry,
+      ]);
+    } else {
+      await ScrumService.createScrum(projectId, {
+        date: selectedDate,
+        userId: currentUserId,
+        userName: currentUserName,
+        userPhotoURL: currentUserPhotoURL,
+        items: [newEntry],
+      });
+    }
+
+    // Reset selection
+    setSelectedMilestones((prev) => ({ ...prev, [userId]: "" }));
+    setSelectedTasks((prev) => ({ ...prev, [userId]: "" }));
+    setAddModes((prev) => ({ ...prev, [userId]: "text" }));
   };
 
   const handleToggleItem = async (userId: string, itemId: string, checked: boolean) => {
@@ -105,7 +257,7 @@ export const ScrumBoard = ({
   const handleKeyDown = (event: React.KeyboardEvent, userId: string) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      handleAddItem(userId);
+      handleAddTextItem(userId);
     }
   };
 
@@ -139,6 +291,15 @@ export const ScrumBoard = ({
           const scrum = scrumsByUser.get(member.uid);
           const items = scrum?.items ?? [];
           const isOwn = member.uid === currentUserId;
+          const addMode = addModes[member.uid] || "text";
+          const selectedMilestoneId = selectedMilestones[member.uid] || "";
+          const selectedTaskId = selectedTasks[member.uid] || "";
+          const availableTasks = selectedMilestoneId ? tasksByMilestone[selectedMilestoneId] || [] : [];
+          const sortedTasks = sortTasksForScrum(
+            availableTasks,
+            membersById,
+            currentUserId
+          );
 
           return (
             <Panel
@@ -180,33 +341,110 @@ export const ScrumBoard = ({
                     onToggle={(id, checked) => handleToggleItem(member.uid, id, checked)}
                     onUpdate={(id, content) => handleUpdateItem(member.uid, id, content)}
                     onDelete={(id) => handleDeleteItem(member.uid, id)}
+                    onTaskClick={onTaskClick}
                   />
                 ))}
               </div>
 
               {isOwn && (
-                <div className="flex gap-2 border-t border-[var(--border)] pt-3">
-                  <input
-                    type="text"
-                    value={newItemTexts[member.uid] ?? ""}
-                    onChange={(e) =>
-                      setNewItemTexts((prev) => ({
-                        ...prev,
-                        [member.uid]: e.target.value,
-                      }))
-                    }
-                    onKeyDown={(e) => handleKeyDown(e, member.uid)}
-                    placeholder="Add a new item..."
-                    className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--muted)] outline-none focus:border-[var(--accent)]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleAddItem(member.uid)}
-                    disabled={!newItemTexts[member.uid]?.trim()}
-                    className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--bg)] transition hover:opacity-90 disabled:opacity-50"
-                  >
-                    Add
-                  </button>
+                <div className="border-t border-[var(--border)] pt-3">
+                  {/* Mode selector */}
+                  <div className="flex gap-1 mb-3">
+                    <button
+                      type="button"
+                      onClick={() => setAddModes((prev) => ({ ...prev, [member.uid]: "text" }))}
+                      className={`px-3 py-1 text-xs font-medium rounded-lg transition ${
+                        addMode === "text"
+                          ? "bg-[var(--accent)] text-[var(--bg)]"
+                          : "bg-[var(--surface-3)] text-[var(--muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      Text
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddModes((prev) => ({ ...prev, [member.uid]: "task" }))}
+                      className={`px-3 py-1 text-xs font-medium rounded-lg transition ${
+                        addMode === "task"
+                          ? "bg-[var(--accent)] text-[var(--bg)]"
+                          : "bg-[var(--surface-3)] text-[var(--muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      Task
+                    </button>
+                  </div>
+
+                  {addMode === "text" ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newItemTexts[member.uid] ?? ""}
+                        onChange={(e) =>
+                          setNewItemTexts((prev) => ({
+                            ...prev,
+                            [member.uid]: e.target.value,
+                          }))
+                        }
+                        onKeyDown={(e) => handleKeyDown(e, member.uid)}
+                        placeholder="Add a new item..."
+                        className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] placeholder:text-[var(--muted)] outline-none focus:border-[var(--accent)]"
+                      />
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => handleAddTextItem(member.uid)}
+                        disabled={!newItemTexts[member.uid]?.trim()}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid gap-2">
+                      <select
+                        value={selectedMilestoneId}
+                        onChange={(e) => {
+                          setSelectedMilestones((prev) => ({ ...prev, [member.uid]: e.target.value }));
+                          setSelectedTasks((prev) => ({ ...prev, [member.uid]: "" }));
+                        }}
+                        className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                      >
+                        <option value="">Select milestone...</option>
+                        {milestones.map((milestone) => (
+                          <option key={milestone.id} value={milestone.id}>
+                            {milestone.title}
+                          </option>
+                        ))}
+                      </select>
+
+                      {selectedMilestoneId && (
+                        <select
+                          value={selectedTaskId}
+                          onChange={(e) => setSelectedTasks((prev) => ({ ...prev, [member.uid]: e.target.value }))}
+                          disabled={loadingTasks[selectedMilestoneId]}
+                          className="w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)] disabled:opacity-50"
+                        >
+                          <option value="">
+                            {loadingTasks[selectedMilestoneId] ? "Loading tasks..." : "Select task..."}
+                          </option>
+                          {sortedTasks.map((task) => (
+                            <option key={task.id} value={task.id}>
+                              [{task.status}] {task.title} - {task.assigneeLabel}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => handleAddTaskItem(member.uid)}
+                        disabled={!selectedMilestoneId || !selectedTaskId}
+                        className="w-full"
+                      >
+                        Add Task
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </Panel>

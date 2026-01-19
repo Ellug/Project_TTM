@@ -86,10 +86,17 @@ export type CsvFormat = {
   updatedAt?: Timestamp;
 };
 
+export type ScrumEntryType = "text" | "task";
+
 export type ScrumEntry = {
   id: string;
+  type: ScrumEntryType;
   content: string;
   checked: boolean;
+  // Task reference (when type === "task")
+  milestoneId?: string;
+  taskId?: string;
+  taskTitle?: string;
 };
 
 export type Scrum = {

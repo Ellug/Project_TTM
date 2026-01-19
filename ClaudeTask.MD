@@ -32,6 +32,7 @@ src/lib/services/
 ├── UserService.ts         # User profiles, email lookup, photo upload
 ├── CsvFormatService.ts    # CSV format templates
 ├── ProjectPostService.ts  # Project board posts
+├── ScrumService.ts        # Daily scrum entries
 └── DiscordService.ts      # Discord webhook notifications
 ```
 
@@ -43,6 +44,7 @@ src/lib/hooks/
 ├── useMilestones.ts       # Project's milestones
 ├── useMilestone.ts        # Single milestone
 ├── useProjectPosts.ts     # Project board posts
+├── useScrums.ts           # Project's scrums (real-time)
 ├── useTasks.ts            # Milestone's tasks (real-time)
 └── useMembers.ts          # Member profiles batch fetch
 ```
@@ -54,7 +56,8 @@ src/app/
 ├── profile/page.tsx                            # User profile + photo upload
 ├── projects/page.tsx                           # Projects list
 ├── projects/[projectId]/milestones/page.tsx    # Milestones + board + calendar
-└── projects/[projectId]/milestones/[milestoneId]/page.tsx  # Tasks (board/table)
+├── projects/[projectId]/milestones/[milestoneId]/page.tsx  # Tasks (board/table)
+└── projects/[projectId]/milestones/scrum/page.tsx          # Daily scrum
 ```
 
 ### API Routes

@@ -10,6 +10,7 @@ type ScrumItemInputProps = {
   onToggle: (id: string, checked: boolean) => void;
   onUpdate: (id: string, content: string) => void;
   onDelete: (id: string) => void;
+  onTaskClick?: (milestoneId: string, taskId: string) => void;
 };
 
 export const ScrumItemInput = ({
@@ -18,9 +19,12 @@ export const ScrumItemInput = ({
   onToggle,
   onUpdate,
   onDelete,
+  onTaskClick,
 }: ScrumItemInputProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(item.content);
+
+  const isTask = item.type === "task";
 
   const handleToggle = () => {
     if (!canEdit) return;
@@ -28,7 +32,7 @@ export const ScrumItemInput = ({
   };
 
   const handleStartEdit = () => {
-    if (!canEdit) return;
+    if (!canEdit || isTask) return;
     setIsEditing(true);
     setEditValue(item.content);
   };
@@ -47,6 +51,14 @@ export const ScrumItemInput = ({
     } else if (event.key === "Escape") {
       setIsEditing(false);
       setEditValue(item.content);
+    }
+  };
+
+  const handleClick = () => {
+    if (isTask && item.milestoneId && item.taskId && onTaskClick) {
+      onTaskClick(item.milestoneId, item.taskId);
+    } else {
+      handleStartEdit();
     }
   };
 
@@ -93,18 +105,43 @@ export const ScrumItemInput = ({
           autoFocus
         />
       ) : (
-        <span
+        <div
           className={clsx(
-            "flex-1 text-sm leading-relaxed",
-            item.checked
-              ? "text-[var(--muted)] line-through"
-              : "text-[var(--text)]",
-            canEdit && "cursor-pointer"
+            "flex-1 min-w-0",
+            (canEdit || isTask) && "cursor-pointer"
           )}
-          onClick={handleStartEdit}
+          onClick={handleClick}
         >
-          {item.content}
-        </span>
+          {isTask ? (
+            <div className="flex items-center gap-2">
+              <span className="rounded bg-[var(--accent-fill-strong)] px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--accent)]">
+                Task
+              </span>
+              <span
+                className={clsx(
+                  "text-sm leading-relaxed truncate",
+                  item.checked
+                    ? "text-[var(--muted)] line-through"
+                    : "text-[var(--text)]",
+                  "hover:text-[var(--accent)] transition"
+                )}
+              >
+                {item.taskTitle || item.content}
+              </span>
+            </div>
+          ) : (
+            <span
+              className={clsx(
+                "text-sm leading-relaxed block",
+                item.checked
+                  ? "text-[var(--muted)] line-through"
+                  : "text-[var(--text)]"
+              )}
+            >
+              {item.content}
+            </span>
+          )}
+        </div>
       )}
 
       {canEdit && !isEditing && (
